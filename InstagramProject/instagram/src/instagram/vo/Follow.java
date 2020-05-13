@@ -1,6 +1,8 @@
 package instagram.vo;
 
-public class Follow {
+import java.io.Serializable;
+
+public class Follow  implements Serializable{
 	private int followidx;
 	private String userId;
 	private String following;

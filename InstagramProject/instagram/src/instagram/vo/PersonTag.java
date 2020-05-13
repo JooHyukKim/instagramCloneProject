@@ -1,6 +1,8 @@
 package instagram.vo;
 
-public class PersonTag {
+import java.io.Serializable;
+
+public class PersonTag implements Serializable{
 	private int personTagIdx;
 	private String userId;
 	private String postId;

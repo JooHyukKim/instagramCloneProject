@@ -1,8 +1,9 @@
 package instagram.vo;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class User {
+public class User implements Serializable{
 	private String userId;
 	private String userName;
 	private String password;

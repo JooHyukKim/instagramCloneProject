@@ -1,6 +1,8 @@
 package instagram.vo;
 
-public class Hashtag {
+import java.io.Serializable;
+
+public class Hashtag implements Serializable{
 	private String hashtagId;
 	
 	public Hashtag() {}

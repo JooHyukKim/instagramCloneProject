@@ -1,6 +1,8 @@
 package instagram.vo;
 
-public class Comment {
+import java.io.Serializable;
+
+public class Comment implements Serializable{
 	private String commentId;
 	private String comment;
 	private int likeNum;

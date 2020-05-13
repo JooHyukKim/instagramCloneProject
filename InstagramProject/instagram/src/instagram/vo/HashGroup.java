@@ -1,6 +1,8 @@
 package instagram.vo;
 
-public class HashGroup {
+import java.io.Serializable;
+
+public class HashGroup implements Serializable{
 	private int HashGroupIdx;
 	private String postId;
 	private String hashtag;

@@ -1,6 +1,8 @@
 package instagram.vo;
 
-public class Post {
+import java.io.Serializable;
+
+public class Post implements Serializable{
 	private String postId;
 	private String caption;
 	private String imageSrc;
