@@ -1,6 +1,7 @@
 package instagram.share;
 
 import java.io.Serializable;
+import java.io.ObjectInputStream.GetField;
 
 import instagram.share.Result;
 public class Command implements Serializable{
@@ -14,21 +15,25 @@ public class Command implements Serializable{
 	public static final int AUTHENTICATEUSER = 14;
 	public static final int GETUSERSBYPERSONTAG = 15;
 	public static final int GETUSERBYPERSONTAG = 16;
-
+	public static final int GETFOLLOWERUSERS = 17;
+	public static final int GETFOLLOWINGUSERS = 18;
+	
 	//POST CRUD 20단위로
 	public static final int ADDPOST = 20;
 	public static final int GETPOST = 21;
 	public static final int UPDATEPOST = 22;
 	public static final int DELETEPOST = 23;
-	public static final int GETPOSTSOFPERSON = 24;
-	public static final int GETPOSTSOFOTHERPERSON = 24;
+	public static final int GETALLPOSTSOFPERSON = 24;
+	public static final int GETSOMEPOSTSOFOTHERPERSON = 25;
+	public static final int GETPOSTSBYHASHTAG = 26;
+
 	
 	//COMMENT CRUD 30
 	public static final int ADDCOMMENT = 30;
-	public static final int GETCOMMENT = 31; /// 필요
-	public static final int UPDATECOMMENT = 32;
-	public static final int DELETECOMMENT = 33;
-	public static final int GETCOMMENTSONPOST = 34;
+	public static final int UPDATECOMMENT = 31;
+	public static final int DELETECOMMENT = 32;
+	public static final int GETCOMMENTSONPOST = 33;
+	public static final int GETALLCOMMENTS = 34;
 	
 	//FOLLOW CRUD 40
 	
