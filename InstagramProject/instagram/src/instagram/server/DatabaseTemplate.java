@@ -14,12 +14,12 @@ public interface DatabaseTemplate {
 	Connection getConnect() throws SQLException;
 	void closeAll(PreparedStatement ps, Connection conn)throws SQLException;
 	void closeAll(ResultSet rs, PreparedStatement ps, Connection conn)throws SQLException;
-	
 	//user CRUD
 	void addUser(User user) throws SQLException;    //회원가입
 	User getUser(String userId) throws SQLException; //회원정보 검색
 	void updateUser(User user) throws SQLException;	//회원정보 변경
 	void deleteUser(String userId) throws SQLException; //회원탈퇴
+	boolean authenticateUser(String userId, String password) throws SQLException; //사용자로그인 + 관리자여부 Boolean값 리턴
 	
 	ArrayList<User> getFollowerUsers(String userId) throws SQLException;   //자신이 팔로우하는 사용자 검색
 	ArrayList<User> getFollowingUsers(String userId) throws SQLException; //자신을 팔로우하는 사용자 검색
