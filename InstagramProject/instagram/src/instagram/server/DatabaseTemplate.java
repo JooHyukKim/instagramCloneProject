@@ -14,7 +14,6 @@ public interface DatabaseTemplate {
 	Connection getConnect() throws SQLException;
 	void closeAll(PreparedStatement ps, Connection conn)throws SQLException;
 	void closeAll(ResultSet rs, PreparedStatement ps, Connection conn)throws SQLException;
-	
 	//user CRUD
 	void addUser(User user) throws SQLException;    //회원가입
 	User getUser(String userId) throws SQLException; //회원정보 검색
