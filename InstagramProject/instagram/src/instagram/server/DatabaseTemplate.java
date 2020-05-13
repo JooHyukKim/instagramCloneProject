@@ -38,7 +38,7 @@ public interface DatabaseTemplate {
 	void deletePost(String userId, String postId) throws SQLException; //사용자가 특정 게시물 삭제
 
 	ArrayList<User> getUsersByPersonTag(String postId) throws SQLException; //게시물에 사용자태그되어 있는 사용자들 검색
-	ArrayList<PersonTag> getPersontagsOnPost(String userId, String postId)throws SQLException; //게시물에 있는 사용자태그 검색
+	ArrayList<PersonTag> getPersontagsOnPost(String userId, String postId) throws SQLException; //게시물에 있는 사용자태그 검색
 	User getUserByPersonTag(int personTagIdx) throws SQLException; //사용자 태그로 사용자 검색???
 	
 	ArrayList<Hashtag> getHashtagsOnPost(String postId) throws SQLException; //사용자 게시물에 있는 해시태그 검색

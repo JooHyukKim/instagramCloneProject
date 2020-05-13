@@ -164,6 +164,12 @@ public class Database implements DatabaseTemplate{
 		return null;
 	}
 
+	@Override
+	public boolean authenticateUser(String userId, String password) throws SQLException {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	
 
 }
