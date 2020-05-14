@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import instagram.exception.DuplicateUserIdException;
 import instagram.vo.*;
 
 public interface DatabaseTemplate {
@@ -15,7 +16,7 @@ public interface DatabaseTemplate {
 	void closeAll(PreparedStatement ps, Connection conn)throws SQLException;
 	void closeAll(ResultSet rs, PreparedStatement ps, Connection conn)throws SQLException;
 	//user CRUD
-	void addUser(User user) throws SQLException;    //회원가입
+	void addUser(User user) throws SQLException, DuplicateUserIdException;    //회원가입
 	User getUser(String userId) throws SQLException; //회원정보 검색
 	void updateUser(User user) throws SQLException;	//회원정보 변경
 	void deleteUser(String userId) throws SQLException; //회원탈퇴
