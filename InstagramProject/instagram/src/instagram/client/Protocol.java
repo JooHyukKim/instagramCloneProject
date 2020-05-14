@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import instagram.share.Command;
 import instagram.vo.Comment;
@@ -53,7 +54,7 @@ public class Protocol {
 		return status;
 	}
 	
-	public void addUser(User user) throws Exception {
+	public boolean addUser(User user) throws Exception {
 		//도시락싸기
 		cmd = new Command(Command.ADDUSER);
 		String[ ] str = {user.getUserId(), user.getUserName(), user.getPassword(), user.getEmail(), user.getGender()};
@@ -63,9 +64,24 @@ public class Protocol {
 		//도시락
 		int status=getResponse();
 		if(status==-2) throw new Exception("존재하는 아이디입니다.");
+		else
+			return false;
 	}
 	
-	public void getUser(String id) throws Exception {
+	public boolean getUserByEmail(String Email) throws Exception {
+		//도시락싸기
+		cmd = new Command(Command.GETUSER);
+		String[ ] str = {Email};
+		cmd.setArgs(str);
+		//도시락보내기
+		writeCommand(cmd);
+		//도시락
+		int status=getResponse();
+		if(status==-2) throw new Exception("회원이 존재하지 않습니당.");
+		else return true;
+	}
+	
+	public boolean getUser(String id) throws Exception {
 		//도시락싸기
 		cmd = new Command(Command.GETUSER);
 		String[ ] str = {id};
@@ -75,6 +91,15 @@ public class Protocol {
 		//도시락
 		int status=getResponse();
 		if(status==-2) throw new Exception(id + "의 회원은 존재하지 않습니당.");
+		else return true;
+	}
+	
+	public ArrayList<User> getUserByName(String name) throws Exception {
+		return null;
+	}
+	
+	public ArrayList<User> getUserByTag(String tag) throws Exception {
+		return null;
 	}
 	
 	public void updateUser(User user) throws Exception {
@@ -101,7 +126,7 @@ public class Protocol {
 		if(status==-2) throw new Exception(userId  + "의 회원은 존재하지 않습니당.");
 	}
 	
-	public void authenticateUser(String userId, String password) throws Exception {
+	public boolean authenticateUser(String userId, String password) throws Exception {
 		//도시락싸기
 		cmd = new Command(Command.AUTHENTICATEUSER);
 		String[ ] str = {userId, password};
@@ -110,7 +135,11 @@ public class Protocol {
 		writeCommand(cmd);
 		//도시락
 		int status=getResponse();
-		if(status==-2) throw new Exception("아이디 또는 비밀번호가 맞지 않습니다.");
+		if(status==-2) { 
+			throw new Exception("아이디 또는 비밀번호가 맞지 않습니다.");
+		}
+		else 
+			return false;
 	}
 	
 	public void getFollowerUsers(String userId) throws Exception {
