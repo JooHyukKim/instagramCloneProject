@@ -8,6 +8,10 @@ insert into user(userId, userName, password, followerNum, followingNum, postNum,
 values("id04", "Song", "1234", 1, 3, 0, "age@test.com", "W");
 insert into user(userId, userName, password, followerNum, followingNum, postNum, email, gender)
 values("id05", "Park", "1234", 3, 3, 0, "ajw@test.com", "M");
+
+insert into follow(userId, followingId) values("id01", "id02");
+insert into follow(userId, followingId) values("id01", "id04");
+insert into follow(userId, followingId) values("id01", "id05");
 insert into follow(userId, followingId) values("id02", "id01");
 insert into follow(userId, followingId) values("id03", "id01");
 insert into follow(userId, followingId) values("id02", "id02");
@@ -120,8 +124,6 @@ insert into hashgroup(postId, hashtagId) values("post08", "computer");
 insert into hashgroup(postId, hashtagId) values("post09", "programming");
 insert into hashgroup(postId, hashtagId) values("post10", "computer");
 insert into hashgroup(postId, hashtagId) values("post11", "algorithm");
-
-
 
 
 

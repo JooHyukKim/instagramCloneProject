@@ -86,6 +86,7 @@ select pt.personTagIdx, pt.userId, pt.postId, pt.postOwner p.postId, p.caption, 
 
 
 
+#게시물에 사용자태그되어 있는 사용자들 검색
 #게시물에 있는 사용자태그 검색
 #사용자 태그로 사용자 검색???
 #사용자 게시물에 있는 해시태그 검색
