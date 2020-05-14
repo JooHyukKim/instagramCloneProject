@@ -50,14 +50,16 @@
 -- delete from follow where userId = ? and followingId = ?;
 
 #자신이 팔로우하는 사용자들 검색
--- select followingId from follow
--- where userId = "?";
+select f.followingId, u.followerNum, u.followingNum, u.postNum, 
+u.email from user u left join follow f on u.userId = f.userId 
+where f.userId='id01';
 
 #자신을 팔로우하는 사용자들 검색
--- select userId from follow
--- where followingId = "?";
+select f.userId, u.followerNum, u.followingNum, u.postNum, 
+u.email from user u left join follow f on u.userId = f.userId 
+where f.followingId ='id01';
 
-
+select * from follow;
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~게시물관련~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  검색할 때 해시태그랑 댓글도 같이..
 #사용자가 게시물 작성
 -- INSERT INTO post(postId, caption, imageSrc, likeNum) values(?, ?, ?, 0);
@@ -113,15 +115,15 @@
 -- delete from post where postId = ?
 
 #사용자가 게시물에 댓글 작성
--- insert into comment(commendId, comment, likeNum, userid, postid)
--- values(?, ?, 0, ?, ?);
+-- insert into comment(commentId, comment, likeNum, userid, postid)
+-- values(?, ?,?, ?);
 
 #사용자가 자신의 댓글 수정  선행조건: 게시물에 있는 자신의 댓글 조회
 -- select commentId from comment where userId = ? and postId = ?;
 -- 원하는 commentId 삭제 진행.
 -- update comment set comment = ?
 -- where commentId = ?;
-
+select * from comment;
 #사용자가 자신의 댓글 삭제 선행조건: 게시물에 있는 자신의 댓글 조회
 -- select commentId from comment where userId = ? and postId = ?;
 -- 원하는 댓글 삭제 진행

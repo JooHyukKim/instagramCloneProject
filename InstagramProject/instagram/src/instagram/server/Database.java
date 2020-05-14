@@ -92,7 +92,7 @@ public class Database implements DatabaseTemplate{
 				String query = "select userId, userName, followerNum, followingNum, postNum, email from user where userId = ?";
 				ps = conn.prepareStatement(query);
 				ps.setString(1, userId);
-				
+								
 				rs = ps.executeQuery();
 				if(rs.next()) {
 					user = new User(rs.getString("userId"), rs.getString("userName"), rs.getInt("followerNum"), 
@@ -162,9 +162,42 @@ public class Database implements DatabaseTemplate{
 		try {
 			conn = getConnect();
 			if(isExist(userId, conn)) {
+				String query = " select f.followingId, u.followerNum, u.followingNum, u.postNum, "
+						+ "u.email from user u left join follow f on u.userId = f.userId "
+						+ "where u.userId=? ";
+				
+				ps = conn.prepareStatement(query);
+				ps.setString(1, userId);
+				
+				rs =ps.executeQuery();
+				while(rs.next()) {
+					list.add(new User(rs.getString("followingId"), rs.getInt("followerNum"), 
+							rs.getInt("followingNum"), rs.getInt("postNum"), rs.getString("email")));
+				}
+			}else {
+				throw new RecordNotFoundException(userId+ "가 존재하지않습니다.");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
+		return list;
+	}
+
+	@Override
+	public ArrayList<User> getFollowingUsers(String userId) throws SQLException, RecordNotFoundException {
+		
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		ArrayList<User> list = new ArrayList<>();
+		
+		try {
+			conn = getConnect();
+			if(isExist(userId, conn)) {
 				String query = " select u.userId, u.followerNum, u.followingNum, u.postNum, "
 						+ "u.email from user u left join follow f on u.userId = f.userId "
-						+ "where followingId=? ";
+						+ "where f.followingId=? ";
 				
 				ps = conn.prepareStatement(query);
 				ps.setString(1, userId);
@@ -185,21 +218,55 @@ public class Database implements DatabaseTemplate{
 	}
 
 	@Override
-	public ArrayList<User> getFollowingUsers(String userId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public void addComment(String userId, String postId, Comment comment) throws SQLException, RecordNotFoundException {
+		
+		Connection conn = null;
+		PreparedStatement ps = null;	
+		
+		try{
+			conn = getConnect();
+			
+			if(isExist(userId, conn)){
+				comment.COMMENTIDNUM++;
+				String query = "insert into comment(commentId, comment, userId, postId) values(?, ?, ?, ?)";			
+				ps = conn.prepareStatement(query);
+				ps.setString(1, comment.getCommentId());
+				ps.setString(2, comment.getComment());
+				ps.setString(3, userId);
+				ps.setString(4, postId);
+				
+				ps.executeUpdate();
+				System.out.println(postId+"에" + userId +"님의 댓글이 달렸습니다.");
+				}else{
+				throw new RecordNotFoundException(userId+ "가 존재하지않습니다.");
+				}
+		}finally{
+			closeAll(ps, conn);			 
+		}
 	}
 
 	@Override
-	public void addComment(String userId, String postId, Comment comment) throws SQLException {
-		// TODO Auto-generated method stub
+	public void updateComment(String userId, String postId, Comment comment) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;	
 		
-	}
+		try{
+			conn = getConnect();
+			
+			if(isExist(userId, conn)){
 
-	@Override
-	public void updateComment(String userId, String postId, Comment comment) throws SQLException {
-		// TODO Auto-generated method stub
-		
+				String query = "update comment set comment = ? where commentId = ?";			
+				ps = conn.prepareStatement(query);
+				
+				
+				ps.executeUpdate();
+				System.out.println(postId+"에" + userId +"님의 댓글이 달렸습니다.");
+				}else{
+				throw new RecordNotFoundException(userId+ "가 존재하지않습니다.");
+				}
+		}finally{
+			closeAll(ps, conn);			 
+		}
 	}
 
 	@Override
