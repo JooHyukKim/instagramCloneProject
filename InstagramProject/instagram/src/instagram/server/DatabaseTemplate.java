@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import instagram.exception.DuplicateUserIdException;
+import instagram.exception.RecordNotFoundException;
 import instagram.vo.*;
 
 public interface DatabaseTemplate {
@@ -17,12 +18,12 @@ public interface DatabaseTemplate {
 	void closeAll(ResultSet rs, PreparedStatement ps, Connection conn)throws SQLException;
 	//user CRUD
 	void addUser(User user) throws SQLException, DuplicateUserIdException;    //회원가입
-	User getUser(String userId) throws SQLException; //회원정보 검색
-	void updateUser(User user) throws SQLException;	//회원정보 변경
-	void deleteUser(String userId) throws SQLException; //회원탈퇴
+	User getUser(String userId) throws SQLException, RecordNotFoundException; //회원정보 검색
+	void updateUser(User user) throws SQLException, RecordNotFoundException;	//회원정보 변경
+	void deleteUser(String userId) throws SQLException, RecordNotFoundException; //회원탈퇴
 	boolean authenticateUser(String userId, String password) throws SQLException; //사용자로그인 + 관리자여부 Boolean값 리턴
 	
-	ArrayList<User> getFollowerUsers(String userId) throws SQLException;   //자신이 팔로우하는 사용자 검색
+	ArrayList<User> getFollowerUsers(String userId) throws SQLException, RecordNotFoundException;   //자신이 팔로우하는 사용자 검색
 	ArrayList<User> getFollowingUsers(String userId) throws SQLException; //자신을 팔로우하는 사용자 검색
 	
 	void addComment(String userId, String postId, Comment comment) throws SQLException; //사용자가 게시물에 댓글 작성
