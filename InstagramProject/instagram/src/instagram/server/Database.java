@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import instagram.config.ServerInfo;
 import instagram.exception.DuplicateUserIdException;
+import instagram.exception.RecordNotFoundException;
 import instagram.vo.Comment;
 import instagram.vo.Hashtag;
 import instagram.vo.PersonTag;
@@ -66,6 +67,9 @@ public class Database implements DatabaseTemplate{
 			ps.setString(2, user.getPassword());
 			ps.setString(4, user.getEmail()); // 생성자로 받을때 두개는 null로 받음
 			ps.setString(4, user.getGender());
+			
+			int row =ps.executeUpdate();
+			System.out.println(row +"명 추가 완료");
 		}else { // 같은 userId 이미 존재
 			throw new DuplicateUserIdException(user.getUserId()+"는 이미 존재합니다.");
 		}
@@ -75,27 +79,109 @@ public class Database implements DatabaseTemplate{
 	}
 
 	@Override
-	public User getUser(String userId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void updateUser(User user) throws SQLException {
-		// TODO Auto-generated method stub
+	public User getUser(String userId) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		User user = null;
 		
+		try {
+			conn =getConnect();
+
+			if(isExist(userId, conn)) { // userId가 있다. 
+				String query = "select userId, userName, followerNum, followingNum, postNum, email from user where userId = ?";
+				ps = conn.prepareStatement(query);
+				ps.setString(1, userId);
+				
+				rs = ps.executeQuery();
+				if(rs.next()) {
+					user = new User(rs.getString("userId"), rs.getString("userName"), rs.getInt("followerNum"), 
+							rs.getInt("followingNum"), rs.getInt("postNum"), rs.getString("email"));
+				}
+			}else { // 같은 userId가 없다.
+				throw new RecordNotFoundException(userId +"는 존재하지않습니다.");
+			}
+			}finally {
+				closeAll(rs, ps, conn);
+			}
+		return user;
 	}
 
 	@Override
-	public void deleteUser(String userId) throws SQLException {
-		// TODO Auto-generated method stub
+	public void updateUser(User user) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;		
+		 try{
+			 conn = getConnect();
+			 
+			 String query ="update user set userName =?, password=?, email =?, gender =? where userId=?";
+			 ps = conn.prepareStatement(query);
+			 ps.setString(1, user.getUserName());
+			 ps.setString(2, user.getPassword());
+			 ps.setString(3, user.getEmail());
+			 ps.setString(4, user.getGender());
+			 ps.setString(5, user.getUserId());
+			
+			 int row = ps.executeUpdate();
+			 if(row==1) System.out.println(row+" 명 update success...");
+			 else throw new RecordNotFoundException("수정할 대상이 없습니다.");
+		 }finally{
+			 closeAll(ps, conn);
+		 }
+	}
+
+	@Override
+	public void deleteUser(String userId) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;	
+		try{
+			conn = getConnect();
+			
+			if(isExist(userId, conn)){
+			String query = "DELETE FROM user WHERE userId=?";			
+			ps = conn.prepareStatement(query);
+			ps.setString(1,userId);		
+			
+			ps.executeUpdate();
+			System.out.println(userId+"가 삭제되었습니다");
+			}else{
+			throw new RecordNotFoundException(userId+ "가 존재하지않습니다.");
+			}
+		}finally{
+			closeAll(ps, conn);			 
+		}
+	}
+
+	@Override
+	public ArrayList<User> getFollowerUsers(String userId) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		ArrayList<User> list = new ArrayList<>();
 		
-	}
-
-	@Override
-	public ArrayList<User> getFollowerUsers(String userId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			conn = getConnect();
+			if(isExist(userId, conn)) {
+				String query = " select u.userId, u.followerNum, u.followingNum, u.postNum, "
+						+ "u.email from user u left join follow f on u.userId = f.userId "
+						+ "where followingId=? ";
+				
+				ps = conn.prepareStatement(query);
+				ps.setString(1, userId);
+				
+				rs =ps.executeQuery();
+				while(rs.next()) {
+					list.add(new User(rs.getString("userId"), rs.getInt("followerNum"), 
+							rs.getInt("followingNum"), rs.getInt("postNum"), rs.getString("email")));
+				}
+			}else {
+				throw new RecordNotFoundException(userId+ "가 존재하지않습니다.");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
+		return list;
 	}
 
 	@Override

@@ -28,6 +28,17 @@ public class User implements Serializable{
 		this.email = email;
 		this.gender = gender;
 	}
+	
+	public User(String userId, String userName, int followerNum, int followingNum, int postNum,
+			String email) {
+		super();
+		this.userId = userId;
+		this.userName = userName;
+		this.followerNum = followerNum;
+		this.followingNum = followingNum;
+		this.postNum = postNum;
+		this.email = email;
+	}
 
 	public User(String userId, String userName, String password, int followerNum, int followingNum, int postNum,
 			String email, String gender, ArrayList<Follow> follow) {
@@ -41,6 +52,15 @@ public class User implements Serializable{
 		this.email = email;
 		this.gender = gender;
 		this.follow = follow;
+	}
+	
+	public User(String userId, int followerNum, int followingNum, int postNum, String email) {
+		super();
+		this.userId = userId;
+		this.followerNum = followerNum;
+		this.followingNum = followingNum;
+		this.postNum = postNum;
+		this.email = email;
 	}
 
 	public String getUserId() {
