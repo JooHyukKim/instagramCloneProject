@@ -70,24 +70,74 @@
 -- select comment from comment
 -- where postid = ?;
 
-#자신이 쓴 모든 댓글들 조회
+#댓글 id로 댓글 조회
+-- select comment, likeNum from comment
+-- where commendId = ?;
+
+#자신이 쓴 모든 댓글들 조회 --skip
+-- select commentId, comment, likeNum, postId from comment
+-- where userId = ?;
+
 #사용자가 게시물 작성
+
 #사용자가 특정 게시물 검색
+select po.postID, po.caption, po.imageSrc, po.likeNum, po.date, pe.userId 
+from post po left join persontag pe
+on po.postId = pe.postId
+where userId = 'id01';
+
 #사용자가 작성한 게시물들 검색
+-- select postId, postOwner from persontag
+-- where userId = "id01" and postOwner = "Y";
+
 #사용자를 팔로우하는 사용자들의 게시물 검색(개수 제한)
+-- select result.userId, result.postId, p.caption, p.imageSrc, p.likeNum
+-- from (select followingPerson.userId, postOfOwner.postId  
+-- 	  from (select * from persontag
+-- 			where postOwner = "Y") as postOfOwner
+-- 			join 
+-- 			(select userId from follow
+-- 			where followingId = "id05") as followingPerson
+-- 			on postOfOwner.userId = followingPerson.userId) as result, post as p
+-- where result.postId = p.postId;
+
 #사용자가 자신의 게시물 수정
-#사용자가 특정 게시물 삭제
+update post set caption = ?
+where postId = ?;
+
+update post set imageSrc = ?
+where postId = ?;
+
+UPDATE post SET caption = ?, imageSrc= ? 
+where postId = ?;
 
 
-#게시물에 사용자태그되어 있는 사용자들 검색
-select * from post;
-
-select pt.personTagIdx, pt.userId, pt.postId, pt.postOwner p.postId, p.caption, p.likeNum from PersonTag pt, post p
+ 
+#사용자가 자신의 특정 게시물 삭제
 
 
+delete from post 
+where postId = ?
 
-#게시물에 사용자태그되어 있는 사용자들 검색
+
+
+
 #게시물에 있는 사용자태그 검색
-#사용자 태그로 사용자 검색???
+-- select userId from personTag
+-- where postId = ?;
+
+# 특정 사용자 태그가 들어있는 게시물들 검색
+-- select postId, postOwner from persontag
+-- where userId = ?;
+
+# 특정 사용자 태그가 들어있는 게시물들 중에서 다른 사람꺼..
+-- select postId, postOwner from persontag
+-- where userId = "id01" and postOwner = "N";
+
 #사용자 게시물에 있는 해시태그 검색
+-- select hashtagId from hashgroup
+-- where postId = ?;
+
 #해시태그로 게시물들 검색
+-- select postId from hashgroup
+-- where hashtagId = ?;
