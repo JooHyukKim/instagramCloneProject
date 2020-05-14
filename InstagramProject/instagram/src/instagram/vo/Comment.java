@@ -3,11 +3,13 @@ package instagram.vo;
 import java.io.Serializable;
 
 public class Comment implements Serializable{
+	public static int COMMENTIDNUM=0;
 	private String commentId;
 	private String comment;
 	private int likeNum;
 	private String userId;
 	private String postId;
+
 	
 	public Comment() {}
 
@@ -19,14 +21,20 @@ public class Comment implements Serializable{
 		this.userId = userId;
 		this.postId = postId;
 	}
+	
+	
 
 	public String getCommentId() {
 		return commentId;
 	}
 
+
+
 	public void setCommentId(String commentId) {
 		this.commentId = commentId;
 	}
+
+
 
 	public String getComment() {
 		return comment;
@@ -60,11 +68,14 @@ public class Comment implements Serializable{
 		this.postId = postId;
 	}
 
+
+
 	@Override
 	public String toString() {
 		return "Comment [commentId=" + commentId + ", comment=" + comment + ", likeNum=" + likeNum + ", userId="
 				+ userId + ", postId=" + postId + "]";
 	}
-	
+
+
 	
 }
