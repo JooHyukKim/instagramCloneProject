@@ -79,12 +79,15 @@
 -- where userId = ?;
 
 #사용자가 게시물 작성
+INSERT INTO post(postId, caption, imageSrc, likeNum) values('1234','This is Test','image1',100);
+INSERT INTO persontag(userId, postid, postOwner) values('id01', '1234','Y'); -- 사용자 본인 소유 확인
+INSERT INTO persontag(userId, postid, postOwner) values('id02', '1234','N'); -- 만약 태그를 했다면....
 
 #사용자가 특정 게시물 검색
 select po.postID, po.caption, po.imageSrc, po.likeNum, po.date, pe.userId 
 from post po left join persontag pe
 on po.postId = pe.postId
-where userId = 'id01';
+where userId = 'id01' and pe.postOwner ='Y';
 
 #사용자가 작성한 게시물들 검색
 -- select postId, postOwner from persontag
@@ -102,17 +105,9 @@ where userId = 'id01';
 -- where result.postId = p.postId;
 
 #사용자가 자신의 게시물 수정
-update post set caption = ?
-where postId = ?;
+UPDATE post SET caption = 'test', imageSrc='src\images\test.jpg' where postId ='post04'; 
+-- 이전에 포스트 검색후 postId를 받아야함
 
-update post set imageSrc = ?
-where postId = ?;
-
-UPDATE post SET caption = ?, imageSrc= ? 
-where postId = ?;
-
-
- 
 #사용자가 자신의 특정 게시물 삭제
 
 
