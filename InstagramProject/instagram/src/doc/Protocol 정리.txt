@@ -1,0 +1,28 @@
+#리턴타입변경
+public boolean authenticateUser(String userId, String password) throws Exception
+
+#리턴타입변경
+public boolean addUser(User user) throws Exception
+
+#추가
+public boolean getUserByEmail(String Email) throws Exception
+
+#추가-- getSomePostsOfOtherPerson랑 같은거?? 
+public ArrayList<Post> getAllPostsOfWithLimit()
+
+#추가
+public void likePost(String postID)
+
+#추가
+public void getAllPostsOfPerson(String userId) throws Exception
+
+#인자값변경
+public void getPersontagsOnPost(String postId) throws Exception 
+	-인자값으로 getPersontagsOnPost
+
+#추가
+public ArrayList<User> getUserByName(String name) throws Exception
+
+#추가
+public ArrayList<User> getUserByTag(String tag) throws Exception 
+	
