@@ -79,7 +79,7 @@
 -- where userId = ?;
 
 #사용자가 게시물 작성
-INSERT INTO post(postId, caption, imageSrc, likeNum) values('1234','This is Test','image1',100);
+INSERT INTO post(postId, caption, imageSrc, likeNum) values(?, ?, ?, ?);
 INSERT INTO persontag(userId, postid, postOwner) values('id01', '1234','Y'); -- 사용자 본인 소유 확인
 INSERT INTO persontag(userId, postid, postOwner) values('id02', '1234','N'); -- 만약 태그를 했다면....
 
@@ -113,8 +113,6 @@ UPDATE post SET caption = 'test', imageSrc='src\images\test.jpg' where postId ='
 
 delete from post 
 where postId = ?
-
-
 
 
 #게시물에 있는 사용자태그 검색
