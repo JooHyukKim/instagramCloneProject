@@ -27,10 +27,10 @@ public interface DatabaseTemplate {
 	ArrayList<User> getFollowingUsers(String userId) throws SQLException, RecordNotFoundException; //자신을 팔로우하는 사용자 검색
 	
 	void addComment(String userId, String postId, Comment comment) throws SQLException, RecordNotFoundException; //사용자가 게시물에 댓글 작성
-	void updateComment(String userId, String postId, Comment comment) throws SQLException, RecordNotFoundException; //사용자가 자신의 댓글 수정
-	void deleteComment(String userId, String postId, String commentId) throws SQLException; //사용자가 자신의 댓글 삭제
-	ArrayList<Comment> getCommentsOnPost(String postId)throws SQLException; //게시물에 있는 댓글들 조회
-	ArrayList<Comment> getAllComments(String userId) throws SQLException; //자신이 쓴 모든 댓글들 조회
+	public void updateComment(String userId, String postId, String commentId, String comment) throws SQLException, RecordNotFoundException; //사용자가 자신의 댓글 수정
+	void deleteComment(String userId, String postId, String commentId) throws SQLException, RecordNotFoundException; //사용자가 자신의 댓글 삭제
+	ArrayList<Comment> getCommentsOnPost(String userId,String postId)throws SQLException, RecordNotFoundException; //게시물에 있는 댓글들 조회
+	ArrayList<Comment> getCommentsUserWrite(String userId, String postId) throws SQLException, RecordNotFoundException; //자신이 쓴 모든 댓글들 조회
 	
 	void addPost(String userId, Post post)throws SQLException; //사용자가 게시물 작성
 	Post getPost(String userId, String postId) throws SQLException; //사용자가 특정 게시물 검색

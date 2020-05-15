@@ -45,7 +45,7 @@ public class MidThread extends Thread{
 			switch(comm) {
 			case Command.ADDUSER:
 				try{
-					db.addUser(args[0], args[1],);
+					//db.addUser(args[0], args[1],);
 				}catch(Exception e) {
 					
 				}
