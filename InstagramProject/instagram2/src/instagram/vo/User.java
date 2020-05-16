@@ -16,21 +16,27 @@ public class User implements Serializable{
 	
 	public User() {}
 	
-	public User(String userId, String userName, String password, int followerNum, int followingNum, int postNum,
-			String email, String gender) {
+	public User(String userId, String password) {
+		super();
+		this.userId = userId;
+		this.password = password;
+	}
+	public User(String userName) {
+		super();
+		this.userName = userName;
+	}
+	
+	public User(String userId, String userName, String password, String email, String gender) {
 		super();
 		this.userId = userId;
 		this.userName = userName;
 		this.password = password;
-		this.followerNum = followerNum;
-		this.followingNum = followingNum;
-		this.postNum = postNum;
 		this.email = email;
 		this.gender = gender;
 	}
 	
 	public User(String userId, String userName, int followerNum, int followingNum, int postNum,
-			String email) {
+			String email, String gender) {
 		super();
 		this.userId = userId;
 		this.userName = userName;
@@ -38,6 +44,7 @@ public class User implements Serializable{
 		this.followingNum = followingNum;
 		this.postNum = postNum;
 		this.email = email;
+		this.gender = gender;
 	}
 
 	public User(String userId, String userName, String password, int followerNum, int followingNum, int postNum,
