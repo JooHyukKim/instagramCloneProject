@@ -248,19 +248,19 @@ public class Database implements DatabaseTemplate{
 				 conn.setAutoCommit(true);}
 	}
 	
-	public void deletePostSub(Connection conn, PreparedStatement ps, String postId) throws SQLException {
+	public void deletePostSub(Connection conn, PreparedStatement ps, String postId) throws SQLException, RecordNotFoundException {
 		 String query1 ="DELETE FROM hashgroup WHERE postId = ?";
 		 ps = conn.prepareStatement(query1);
 		 ps.setString(1, postId);
-		 ps.executeUpdate();
+		 if (ps.executeUpdate() != 1) throw new RecordNotFoundException("해당 목록을 찾을수 없습니다.");
 		 String query2 ="DELETE FROM persontag WHERE postId = ?";
 		 ps = conn.prepareStatement(query2);
 		 ps.setString(1, postId);
-		 ps.executeUpdate();
+		 if (ps.executeUpdate() != 1) throw new RecordNotFoundException("해당 목록을 찾을수 없습니다.");
 		 String query3 ="DELETE FROM comment WHERE postId = ?";
 		 ps = conn.prepareStatement(query3);
 		 ps.setString(1, postId);
-		 ps.executeUpdate();
+		 if (ps.executeUpdate() != 1) throw new RecordNotFoundException("해당 목록을 찾을수 없습니다.");
 	}
 	
 	@Override
@@ -283,7 +283,11 @@ public class Database implements DatabaseTemplate{
 			}
 			 // RDBMS의 특성상 가장 child한 table에서부터 지우고 올라가야되서 추가적인 execution들은 옮김.
 			 	 
-		 }catch (Exception e) {
+		 }catch (RecordNotFoundException e) {
+			 conn.rollback();
+			 throw new RecordNotFoundException("해당 목록을 찾을수 없습니다.");
+		}
+		 catch (Exception e) {
 				conn.rollback();
 				throw new SQLException();}
 			 finally{
