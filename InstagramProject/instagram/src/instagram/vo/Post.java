@@ -7,6 +7,9 @@ public class Post implements Serializable{
 	private String caption;
 	private String imageSrc;
 	private int likeNum;
+	private String date;
+	private String userId;
+	private static int POSTNUM=0;
 	
 	public Post() {}
 
@@ -17,13 +20,36 @@ public class Post implements Serializable{
 		this.imageSrc = imageSrc;
 		this.likeNum = likeNum;
 	}
+	
+	public Post(String postId, String caption, String imageSrc, int likeNum, String date) {
+		super();
+		this.postId = postId;
+		this.caption = caption;
+		this.imageSrc = imageSrc;
+		this.likeNum = likeNum;
+		this.date = date;
+	}
+	
+	
+
+	public Post(String postId, String caption, String imageSrc, int likeNum, String date, String userId) {
+		super();
+		this.postId = postId;
+		this.caption = caption;
+		this.imageSrc = imageSrc;
+		this.likeNum = likeNum;
+		this.date = date;
+		this.userId = userId;
+	}
 
 	public String getPostId() {
 		return postId;
 	}
 
 	public void setPostId(String postId) {
-		this.postId = postId;
+		POSTNUM++;
+		postId ="post";
+		this.postId = postId+POSTNUM;
 	}
 
 	public String getCaption() {
@@ -49,12 +75,26 @@ public class Post implements Serializable{
 	public void setLikeNum(int likeNum) {
 		this.likeNum = likeNum;
 	}
+	
+	
+
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
 
 	@Override
 	public String toString() {
-		return "Post [postId=" + postId + ", caption=" + caption + ", imageSrc=" + imageSrc + ", likeNum=" + likeNum
-				+ "]";
-	};
+		return "postId=" + postId + ", caption=" + caption + ", imageSrc=" + imageSrc + ", likeNum=" + likeNum
+				+ ", date=" + date + ", userId=" + userId +"\n" ;
+	}
+
+	
+
+	
 	
 	
 }

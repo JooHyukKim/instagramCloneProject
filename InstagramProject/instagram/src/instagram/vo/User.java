@@ -62,6 +62,17 @@ public class User implements Serializable{
 		this.postNum = postNum;
 		this.email = email;
 	}
+	
+	
+
+	public User(String userId, String userName, String password, String email, String gender) {
+		super();
+		this.userId = userId;
+		this.userName = userName;
+		this.password = password;
+		this.email = email;
+		this.gender = gender;
+	}
 
 	public String getUserId() {
 		return userId;

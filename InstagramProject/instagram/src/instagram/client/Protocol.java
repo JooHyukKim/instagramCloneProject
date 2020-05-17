@@ -6,6 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
+import instagram.exception.RecordNotFoundException;
 import instagram.share.Command;
 import instagram.vo.Comment;
 import instagram.vo.Post;
@@ -50,7 +51,7 @@ public class Protocol {
 			System.out.println("client getResponse()....error"+e);	
 		}
 		//0, DuplicateE(-2), RecordNE(-1), InvalidTE(-3)
-		int status=cmd.getResults().getStatus();
+		int status = cmd.getResults().getStatus();
 		return status;
 	}
 	
@@ -63,9 +64,10 @@ public class Protocol {
 		writeCommand(cmd);
 		//도시락
 		int status=getResponse();
+		System.out.println("추가 완료");
 		if(status==-2) throw new Exception("존재하는 아이디입니다.");
-		else
-			return false;
+		else return false;
+		
 	}
 	
 	public boolean getUserByEmail(String Email) throws Exception {
@@ -128,6 +130,7 @@ public class Protocol {
 	
 	public boolean authenticateUser(String userId, String password) throws Exception {
 		//도시락싸기
+		boolean result = true;
 		cmd = new Command(Command.AUTHENTICATEUSER);
 		String[ ] str = {userId, password};
 		cmd.setArgs(str);
@@ -135,11 +138,10 @@ public class Protocol {
 		writeCommand(cmd);
 		//도시락
 		int status=getResponse();
-		if(status==-2) { 
-			throw new Exception("아이디 또는 비밀번호가 맞지 않습니다.");
+		if(status==-1) { 
+			result = false;
 		}
-		else 
-			return false;
+		return result;
 	}
 	
 	public void getFollowerUsers(String userId) throws Exception {
@@ -166,10 +168,10 @@ public class Protocol {
 		if(status==-2) throw new Exception("GET FOLLOWING USERS ERORR 맞지 않습니다.");
 	}
 	
-	public void addComment(String userId, String postId, Comment comment) throws Exception {
+	public void addComment(String userId, String postId, String comment) throws Exception {
 		//도시락싸기
 		cmd = new Command(Command.ADDCOMMENT);
-		String[ ] str = {userId, postId, comment.getComment()};
+		String[ ] str = {userId, postId, comment};
 		cmd.setArgs(str);
 		//도시락보내기
 		writeCommand(cmd);
@@ -245,8 +247,9 @@ public class Protocol {
 		if(status==-2) throw new Exception("GETPOST ERROR");
 	}
 	
-	public void getAllPostsOfPerson(String userId) throws Exception {
+	public ArrayList<Post> getAllPostsOfPerson(String userId) throws Exception {
 		//도시락싸기
+		ArrayList<Post> list = new  ArrayList<Post>();
 		cmd = new Command(Command.GETALLPOSTSOFPERSON);
 		String[ ] str = {userId};
 		cmd.setArgs(str);
@@ -255,19 +258,10 @@ public class Protocol {
 		//도시락
 		int status=getResponse();
 		if(status==-2) throw new Exception("Get all posts of person ERROR");
+		list = (ArrayList<Post>)cmd.getResults().get(0);
+		return list;
 	}
 	
-	public void getSomePostsOfOtherPerson(String userId) throws Exception {
-		//도시락싸기
-		cmd = new Command(Command.GETSOMEPOSTSOFOTHERPERSON);
-		String[ ] str = {userId};
-		cmd.setArgs(str);
-		//도시락보내기
-		writeCommand(cmd);
-		//도시락
-		int status=getResponse();
-		if(status==-2) throw new Exception("get some posts of other person ERROR");
-	}
 	
 	public void updatePost(String userId, Post post) throws Exception {
 		//도시락싸기
@@ -293,17 +287,6 @@ public class Protocol {
 		if(status==-2) throw new Exception("DELETE POST ERROR");
 	}
 	
-	public void getUsersByPersonTag(String postId) throws Exception {
-		//도시락싸기
-		cmd = new Command(Command.GETUSERSBYPERSONTAG);
-		String[ ] str = {postId};
-		cmd.setArgs(str);
-		//도시락보내기
-		writeCommand(cmd);
-		//도시락
-		int status=getResponse();
-		if(status==-2) throw new Exception("GETUSERSBY PERSON TAG STRING ERROR");
-	}
 	
 	public void getPersontagsOnPost(String userId, String postId) throws Exception {
 		//도시락싸기
@@ -351,6 +334,45 @@ public class Protocol {
 		//도시락
 		int status=getResponse();
 		if(status==-2) throw new Exception("GETPOSTSBYHASHTAG ERROR");
+	}
+	
+	public boolean checkUserId(String userId) { // ID 여부만 확인
+		//도시락싸기
+		cmd = new Command(Command.CHECKUSERID);
+		String[ ] str = {userId};
+		cmd.setArgs(str);
+		//도시락보내기
+		writeCommand(cmd);
+		//도시락
+		int status=getResponse();
+		if(status==-2) {
+			return false;
+		}else return true;
+	}
+	
+	public ArrayList<Post> getSomePostsOfFollowingPerson(String userId) throws RecordNotFoundException{
+		
+		ArrayList<Post> list = new  ArrayList<Post>();
+		cmd = new Command(Command.GETSOMEPOSTSOFFOLLOWINGPERSON);
+		String[ ] str = {userId};
+		cmd.setArgs(str);
+		
+		writeCommand(cmd);
+		int status = getResponse(); // 여기서 cmd는 jury가 던진 cmd가 됨
+		list = (ArrayList<Post>) cmd.getResults().get(0);
+		if(status == -1) throw new RecordNotFoundException("팔로워 게시물이 없어요");
+		return list;
+	}
+
+	public void likePost(String postId) {
+		cmd = new Command(Command.LIKEPOST);
+		String[ ] str = {postId};
+		cmd.setArgs(str);
+		//도시락보내기
+		writeCommand(cmd);
+		//도시락 받고 난 후 
+		int status=getResponse();
+		System.out.println(status+"================");
 	}
 	
 	

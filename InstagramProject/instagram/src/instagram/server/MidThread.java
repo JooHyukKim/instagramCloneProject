@@ -4,9 +4,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.sql.SQLException;
+import java.util.ArrayList;
 
+import instagram.exception.DuplicateUserIdException;
+import instagram.exception.RecordNotFoundException;
 import instagram.share.Command;
 import instagram.share.Result;
+import instagram.vo.Post;
+import instagram.vo.User;
 
 public class MidThread extends Thread{
 	
@@ -45,9 +51,14 @@ public class MidThread extends Thread{
 			switch(comm) {
 			case Command.ADDUSER:
 				try{
-					//db.addUser(args[0], args[1],);
-				}catch(Exception e) {
-					
+					User user = new User(args[0], args[1], args[2], args[3], args[4]);
+					db.addUser(user);
+					r.setStatus(0);
+			
+				}catch(DuplicateUserIdException e) {
+					r.setStatus(-2);
+				}catch(SQLException e) {
+		
 				}
 				break;
 			case Command.GETUSER:
@@ -73,9 +84,14 @@ public class MidThread extends Thread{
 				break;
 			case Command.AUTHENTICATEUSER:
 				try{
+					String userId = args[0];
+					String password = args[1];
+					db.authenticateUser(userId, password);
+					r.setStatus(0);
+				}catch(SQLException e) {
 					
 				}catch(Exception e) {
-					
+					r.setStatus(-1);
 				}
 				break;
 			case Command.GETUSERSBYPERSONTAG:
@@ -136,16 +152,21 @@ public class MidThread extends Thread{
 				break;
 			case Command.GETALLPOSTSOFPERSON:
 				try{
-					
+					String userId = args[0];
+					ArrayList<Post> list = db.getAllPostsOfPerson(userId);
+					r.setStatus(0);
+					r.add(list);
 				}catch(Exception e) {
 					
 				}
 				break;
-			case Command.GETSOMEPOSTSOFOTHERPERSON:
+			case Command.GETSOMEPOSTSOFFOLLOWINGPERSON:
 				try{
-					
-				}catch(Exception e) {
-					
+					String userId = args[0];
+					ArrayList<Post> list = db.getSomePostsOfFollowingPerson(userId);
+					r.setStatus(0);
+					r.add(list);
+					} catch (Exception e) {
 				}
 				break;
 			case Command.GETPOSTSBYHASHTAG:
@@ -157,6 +178,11 @@ public class MidThread extends Thread{
 				break;
 			case Command.ADDCOMMENT:
 				try{
+					String userId = args[0];
+					String postId = args[1];
+					String comment = args[2];
+					db.addComment(userId, postId, comment);
+					r.setStatus(0);
 					
 				}catch(Exception e) {
 					
@@ -204,6 +230,32 @@ public class MidThread extends Thread{
 					
 				}
 				break;
+			case Command.CHECKUSERID:
+				try {
+					String userId = args[0];
+					db.checkUserId(userId);
+					r.setStatus(0);
+					
+				}catch(DuplicateUserIdException e) {
+					System.out.println("이미 존재합니다.");
+					r.setStatus(-2);
+				}catch(SQLException e) {
+					
+				}
+			case Command.LIKEPOST:
+				try{
+					String postId = args[0];
+					db.likePost(postId);
+					r.setStatus(0);
+				}catch(SQLException e) {
+					
+				}
+				break;
+			}
+			//다시 protocol로 cmd를 던진다. 
+			try {
+				oos.writeObject(cmd);
+			}catch(Exception e) {
 			}
 		}
 	}

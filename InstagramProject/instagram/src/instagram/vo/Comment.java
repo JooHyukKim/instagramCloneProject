@@ -3,7 +3,7 @@ package instagram.vo;
 import java.io.Serializable;
 
 public class Comment implements Serializable{
-	public static int COMMENTIDNUM=0;
+	
 	private String commentId;
 	private String comment;
 	private int likeNum;
@@ -40,9 +40,9 @@ public class Comment implements Serializable{
 
 
 
-	public void setCommentId(String commentId) {
-		COMMENTIDNUM++;
-		this.commentId = "comm" + COMMENTIDNUM;
+	public String setCommentId() {
+		
+		return commentId;
 	}
 
 

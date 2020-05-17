@@ -17,6 +17,7 @@ public class Command implements Serializable{
 	public static final int GETUSERBYPERSONTAG = 16;
 	public static final int GETFOLLOWERUSERS = 17;
 	public static final int GETFOLLOWINGUSERS = 18;
+	public static final int CHECKUSERID = 19;
 	
 	//POST CRUD 20단위로
 	public static final int ADDPOST = 20;
@@ -24,8 +25,9 @@ public class Command implements Serializable{
 	public static final int UPDATEPOST = 22;
 	public static final int DELETEPOST = 23;
 	public static final int GETALLPOSTSOFPERSON = 24;
-	public static final int GETSOMEPOSTSOFOTHERPERSON = 25;
+	public static final int GETSOMEPOSTSOFFOLLOWINGPERSON = 25;
 	public static final int GETPOSTSBYHASHTAG = 26;
+	public static final int LIKEPOST = 27;
 
 	
 	//COMMENT CRUD 30

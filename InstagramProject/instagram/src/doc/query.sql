@@ -79,6 +79,7 @@ select * from follow;
 -- on po.postId = pe.postId
 -- where pe.userId = ? and pe.postOwner ='Y';
 
+
 #사용자가 다른 사람이 작성한(자신이 태그가 안된) 게시물 검색
 -- select po.postId, po.caption, po.imageSrc, po.likeNum, po.date, pe.userId 
 -- from post po left join persontag pe
@@ -95,6 +96,11 @@ select * from follow;
 -- 			where followingId = ?) as followingPerson
 -- 			on postOfOwner.userId = followingPerson.userId) as result, post as p
 -- where result.postId = p.postId;
+
+-- 자기가 팔로우한 사람 게시글 보기
+-- select p.postId, p.caption, p.imageSrc, p.likeNum, pt.userId from post p left join personTag pt on p.postId = pt.postId
+-- where p.postId in (select postId from persontag pt left join follow f on pt.userId = f.followingId where f.userId ='id01' and pt.postOwner= 'Y')
+-- and pt.postOwner= 'Y';
 
 #사용자가 자신의 게시물 수정  검사사항 : 해시태그 삭제와 사용자 태그 삭제
 -- UPDATE post SET caption = 'test', imageSrc='src\images\test.jpg' where postId ='post04'; 

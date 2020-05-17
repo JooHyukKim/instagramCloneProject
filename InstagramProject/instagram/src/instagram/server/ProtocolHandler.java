@@ -18,9 +18,11 @@ public class ProtocolHandler extends Thread{
 		try {
 			//생성자에서 서버소켓과 비즈니스 객체를 생성. 
 			server = new ServerSocket(MIDDLE_PORT);
+			System.out.println("ServerSocket 생성");
 			db = new Database(DBserverIp);
-		}catch(Exception e) {
 			
+		}catch(Exception e) {
+			System.out.println("서버 연결 실패");
 		}
 		System.out.println("start protocol handler... service port :"+MIDDLE_PORT);
 	}
@@ -37,7 +39,7 @@ public class ProtocolHandler extends Thread{
 		}
 	}
 	public static void main(String[] args) {
-		ProtocolHandler handler = new ProtocolHandler("0.0.0.0");//db서버 IP를 넣는다.서버 소켓과 비즈니스객체 생성. 
+		ProtocolHandler handler = new ProtocolHandler("127.0.0.1");//db서버 IP를 넣는다.서버 소켓과 비즈니스객체 생성. 
 		handler.start();  //핸들러 자체가 thread...
 	}
 }

@@ -17,9 +17,11 @@ import instagram.vo.Post;
 import instagram.vo.User;
 
 public class Database implements DatabaseTemplate{
+	
+	public static int COMMENTIDNUM=6;
 
 	public Database(String serverIp) throws ClassNotFoundException{
-		Class.forName(ServerInfo.DRIVER_NAME);
+		//Class.forName(ServerInfo.DRIVER_NAME);
 		System.out.println("드라이버 로딩 성공....");
 	}
 	
@@ -43,10 +45,10 @@ public class Database implements DatabaseTemplate{
 	}
 	
 	public boolean isExistUserId(String userId, Connection conn)throws SQLException { // user 존재 유무 확인
-		String sql ="SELECT userId FROM customer WHERE useId=?";
+		String sql ="SELECT userId FROM user WHERE userId=?";
 		PreparedStatement ps = conn.prepareStatement(sql);
 		
-		ps.setString(1,userId);
+		ps.setString(1, userId);
 		ResultSet rs = ps.executeQuery();
 		return rs.next();
 	}
@@ -69,29 +71,43 @@ public class Database implements DatabaseTemplate{
 		return rs.next();
 	}
 	
+	public boolean isExistHashtagId(String hashtagId, Connection conn)throws SQLException { //hashtagId 존재 유무 확인
+		String sql ="SELECT hashtagId FROM hashtag WHERE hashtagId=?";
+		PreparedStatement ps = conn.prepareStatement(sql);
+		
+		ps.setString(1,hashtagId);
+		ResultSet rs = ps.executeQuery();
+		return rs.next();
+	}
+	
 
+	
+	
+	
+	
 	@Override
 	public void addUser(User user) throws SQLException, DuplicateUserIdException {
 		Connection conn = null;
 		PreparedStatement ps = null;
-		try {
-		conn =getConnect();
 		
-		if(!isExistUserId(user.getUserId(), conn)) { // userId가 없다...
-			String query = "INSERT INTO user(userId, userName, password, email, gender) values(?,?,?,?,?)";
-			ps = conn.prepareStatement(query);
+		try {
+			conn =getConnect();
 			
-			ps.setString(1, user.getUserId());
-			ps.setString(2, user.getUserName());
-			ps.setString(2, user.getPassword());
-			ps.setString(4, user.getEmail()); // 생성자로 받을때 두개는 null로 받음
-			ps.setString(4, user.getGender());
-			
-			int row =ps.executeUpdate();
-			System.out.println(row +"명 추가 완료");
-		}else { // 같은 userId 이미 존재
-			throw new DuplicateUserIdException(user.getUserId()+"는 이미 존재합니다.");
-		}
+			if(!isExistUserId(user.getUserId(), conn)) { // userId가 없다...
+				String query = "INSERT INTO user(userId, userName, password, email, gender) values(?,?,?,?,?)";
+				ps = conn.prepareStatement(query);
+
+				ps.setString(1, user.getUserId());
+				ps.setString(2, user.getUserName());
+				ps.setString(3, user.getPassword());
+				ps.setString(4, user.getEmail()); 
+				ps.setString(5, user.getGender());
+				
+				int row =ps.executeUpdate();
+				System.out.println(row +"명 추가 완료");
+			}else { // 같은 userId 이미 존재
+				throw new DuplicateUserIdException(user.getUserId()+"는 이미 존재합니다.");
+			}
 		}finally {
 			closeAll(ps, conn);
 		}
@@ -237,19 +253,20 @@ public class Database implements DatabaseTemplate{
 	}
 
 	@Override
-	public void addComment(String userId, String postId, Comment comment) throws SQLException, RecordNotFoundException {
+	public void addComment(String userId, String postId, String comment) throws SQLException, RecordNotFoundException {
 		
 		Connection conn = null;
-		PreparedStatement ps = null;	
-		
+		PreparedStatement ps = null;
+		String commentId = "comm"+ COMMENTIDNUM;
+		COMMENTIDNUM++;
 		try{
 			conn = getConnect();
 			
 			if(isExistUserId(userId, conn)){
 				String query = "insert into comment(commentId, comment, userId, postId) values(?, ?, ?, ?)";			
 				ps = conn.prepareStatement(query);
-				ps.setString(1, comment.getCommentId());
-				ps.setString(2, comment.getComment());
+				ps.setString(1, commentId);
+				ps.setString(2, comment);
 				ps.setString(3, userId);
 				ps.setString(4, postId);
 				
@@ -377,78 +394,296 @@ public class Database implements DatabaseTemplate{
 
 	@Override
 	public void addPost(String userId, Post post) throws SQLException {
+		Connection conn = null;
+		PreparedStatement ps = null;
 		
+		try {
+			conn = getConnect();
+			String query =  "insert into post(postId, caption, imageSrc) values(?,?,?,)";
+			ps = conn.prepareStatement(query);
+			ps.setString(1, post.getPostId());
+			ps.setString(2, post.getCaption());
+			ps.setString(3, post.getImageSrc());
+			
+			ps.executeUpdate();
+			System.out.println("댓글이 달렸습니다.");
+			
+		} finally {
+			closeAll(ps, conn);
+		} 
 		
 	}
 
 	@Override
-	public Post getPost(String userId, String postId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public Post getPost(String userId, String postId) throws SQLException, RecordNotFoundException {
+		
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		Post post = null;
+		
+		try {
+			conn = getConnect();
+			if(isExistPostId(postId, conn)) {
+				String query = "select * from post where postId =?";
+				ps = conn.prepareStatement(query);
+				ps.setString(1, postId);
+				
+				rs =ps.executeQuery();
+				if(rs.next()) {
+					new Post(rs.getString("postId"), rs.getString("caption"), rs.getString("imageSrc"), rs.getInt("likeNum"), rs.getString( "date"));
+				}
+			}else {
+				throw new RecordNotFoundException(postId+"가 존재하지않습니다.");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
+		return post;
 	}
 
 	@Override
-	public ArrayList<Post> getAllPostsOfPerson(String userId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayList<Post> getAllPostsOfPerson(String userId) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		ArrayList<Post> list = new ArrayList<>();
+		
+		try {
+			conn = getConnect();
+			
+			if(isExistUserId(userId, conn)) {
+				
+				String query = "select po.postId, po.caption, po.imageSrc, po.likeNum, po.date, pe.userId "
+						+ "from post po left join persontag pe"
+						+ "on po.postId = pe.postId"
+						+ "where pe.userId = ? and pe.postOwner ='Y'";
+				ps = conn.prepareStatement(query);
+				ps.setString(1, userId);
+				
+				rs =ps.executeQuery();
+				System.out.println("====================***************************************"); // 여기가 문제
+				while(rs.next()) {
+					
+					list.add(new Post(rs.getString("po.postId"), rs.getString("po.caption"), rs.getString("po.imageSrc"), rs.getInt("po.likeNum") , rs.getString("po.date"), rs.getString("pe.userId")));
+				}
+			}else {
+				throw new RecordNotFoundException(userId+"가 존재하지않습니다.");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
+		return list;
 	}
 
 	@Override
-	public ArrayList<Post> getSomePostsOfOtherPerson(String userId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayList<Post> getSomePostsOfFollowingPerson(String userId) throws SQLException, RecordNotFoundException {
+		
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs=null;
+		ArrayList<Post> list = new ArrayList<>();
+		
+		try {
+			conn = getConnect();
+			
+			if(isExistUserId(userId, conn)) {
+				String query = "select p.postId, p.caption, p.imageSrc, p.likeNum, p.date, pt.userId from post p left join personTag pt on p.postId = pt.postId "
+						+ "where p.postId in (select postId from persontag pt left join follow f on pt.userId = f.followingId where f.userId =? and pt.postOwner= 'Y') "
+						+ "and pt.postOwner= 'Y'";
+				ps = conn.prepareStatement(query);
+				ps.setString(1, userId);
+				
+				rs =ps.executeQuery();
+				while(rs.next()) {
+					list.add(new Post(rs.getString("p.postId"), rs.getString("p.caption"), rs.getString("p.imageSrc"), rs.getInt("p.likeNum"), rs.getString("p.date"), rs.getString("pt.userId")));
+				}
+			}else {
+				throw new RecordNotFoundException(userId+"가 존재하지않습니다.");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
+		return list;
 	}
 
 	@Override
 	public void updatePost(String userId, Post post) throws SQLException {
-		// TODO Auto-generated method stub
+		
+		Connection conn = null;
+		PreparedStatement ps = null;
+		
+		try {
+			conn = getConnect();
+			String query =  "UPDATE post SET caption =?, imageSrc=? where postId =?";
+			ps = conn.prepareStatement(query);
+			ps.setString(1, post.getCaption());
+			ps.setString(2, post.getImageSrc());
+			ps.setString(3, post.getPostId());
+			
+			ps.executeUpdate();
+			System.out.println("게시글이 수정되었습니다.");
+			
+		} finally {
+			closeAll(ps, conn);
+		} 
 		
 	}
 
 	@Override
 	public void deletePost(String userId, String postId) throws SQLException {
-		// TODO Auto-generated method stub
+		Connection conn = null;
+		PreparedStatement ps = null;
 		
+		
+		try {
+			conn = getConnect();
+			String query =  "delete from post where postId =?";
+			ps = conn.prepareStatement(query);
+			ps.setString(1, postId);	
+			
+			ps.executeUpdate();
+			
+		} finally {
+			closeAll(ps, conn);
+		} 
 	}
 
 	@Override
-	public ArrayList<User> getUsersByPersonTag(String postId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayList<User> getUsersByPersonTag(String postId) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		ArrayList<User> list = new ArrayList<>();
+		
+		try {
+			conn = getConnect();
+			if(isExistPostId(postId, conn)) {
+				String query = "select userId, followerNum, followingNum, postNum, email from user where userId in (select userId from persontag where postId = ? and postOwner ='N')";
+				ps = conn.prepareStatement(query);
+				ps.setString(1, postId);
+				
+				rs =ps.executeQuery();
+				while(rs.next()) {
+					list.add(new User(rs.getString("userId"), rs.getInt("followerNum"), rs.getInt("followingNum"),rs.getInt("postNum"), rs.getString("email")));
+				}
+			}else {
+				throw new RecordNotFoundException(postId+"가 존재하지않습니다.");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
+		return list;
 	}
 
 	@Override
-	public ArrayList<PersonTag> getPersontagsOnPost(String userId, String postId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public ArrayList<Post> getPostsByHashTag(String hashtagId) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		ArrayList<Post> list = new ArrayList<>();
+		
+		try {
+			conn = getConnect();
+			if(isExistHashtagId(hashtagId, conn)) {
+				String query = "select postId, caption, imageSrc likeNum, date from post where postId in (select postId from hashgroup where hashtagId = ?)";
+				ps = conn.prepareStatement(query);
+				ps.setString(1, hashtagId);
+				
+				rs =ps.executeQuery();
+				while(rs.next()) {
+					list.add(new Post(rs.getString("postId"), rs.getString("caption"), rs.getString("imageSrc"), rs.getInt("likeNum"), rs.getString("date")));
+				}
+			}else {
+				throw new RecordNotFoundException(hashtagId+"가 존재하지않습니다.");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
+		return list;
 	}
 
 	@Override
-	public User getUserByPersonTag(int personTagIdx) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public void authenticateUser(String userId, String password) throws SQLException, RecordNotFoundException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		
+		try {
+			conn = getConnect();
+			if(isExistUserId(userId, conn)) {
+				String query = "select userId, password from user where userId =? and password=?";
+				ps = conn.prepareStatement(query);
+				ps.setString(1, userId);
+				ps.setString(2, password);
+				rs =ps.executeQuery();
+				if(!rs.next()) {
+					throw new RecordNotFoundException();
+				}
+			}else {
+				throw new RecordNotFoundException(userId+"가 존재하지않거나 틀렸습니다..");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
 	}
 
-	@Override
-	public ArrayList<Hashtag> getHashtagsOnPost(String postId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+	public void checkUserId(String userId) throws DuplicateUserIdException, SQLException {
+		Connection conn = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		boolean result = false;
+		try {
+			conn = getConnect();
+			if(!isExistUserId(userId, conn)) {
+				result= true;
+			}else {
+				throw new DuplicateUserIdException("이미 존재합니다.");
+			}
+		
+		}finally {
+			closeAll(rs, ps, conn);
+		}
 	}
+	
+	public void likePost(String postId) throws SQLException { //트랜잭션 사용
+		Connection conn = null;
+		PreparedStatement ps = null;
+		PreparedStatement ps2 = null;
+		ResultSet rs = null;
+		int likeNum =0;
+		
+		try {
+			conn = getConnect();
+			System.out.println(postId);
+			String query1 =  "select likeNum from post where postId=?";
+			ps = conn.prepareStatement(query1);
+			ps.setString(1, postId);	
+			rs = ps.executeQuery();
+			if(rs.next()) {
+				 likeNum = rs.getInt("likeNum");
+				}	
+			String query2 =  "update post set likeNum = ?+1 where postId= ?";
+			ps2 = conn.prepareStatement(query2);
+			ps2.setInt(1, likeNum);
+			ps2.setString(2, postId);
 
-	@Override
-	public ArrayList<Post> getPostsByHashTag(String hashtagId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+			
+			ps2.executeUpdate();
+			
+		}catch(Exception e){
+			
+		}finally {
+			closeAll(rs, ps, conn);
+		} 
 	}
-
-	@Override
-	public boolean authenticateUser(String userId, String password) throws SQLException {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 	
 
-	
 
 }
