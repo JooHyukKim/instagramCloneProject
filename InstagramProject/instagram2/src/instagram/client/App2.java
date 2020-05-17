@@ -1,9 +1,12 @@
 package instagram.client;
 
 
+import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.Scanner;
 
+import instagram.exception.DuplicateRercordException;
+import instagram.exception.RecordNotFoundException;
 import instagram.vo.Comment;
 import instagram.vo.Hashtag;
 import instagram.vo.Post;
@@ -39,43 +42,56 @@ public class App2 {
 				System.out.print("비밀번호 입력 : ");
 				String password = sc.nextLine();
 				try {
-					if (pro.authenticateUser(id, password) == true) currentUserId = id;
-				} catch (Exception e) { System.out.println("아이디 또는 비밀번호가 맞지 않습니다.");}
+					pro.authenticateUser(id, password);
+					currentUserId = id;
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 1:
 				try {
 					pro.addUser(new User("id06", "Kim", "1234", "beanskobe@gmail.com", "M")); // new
 					pro.addUser(new User("id02", "Kim", "1234", "beanskobe@gmail.com", "M")); // exist
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 2:
 				try {
 					pro.getUserByEmail("aaa@test.com"); //존재하는 
 					pro.getUserByEmail("dsafdsaf@ghdlkags.com");//존재하지않는 >>
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 6: // 21. 아이디를 들고가서 비밀번호를 반환한다. 이론상으로는 이메일로 전송됨.
 				try {
 					pro.getUserById("id02"); //존재하는아이디
 					pro.getUserById("id0251"); //존재하지않는 >>에러
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 3: // 3. 회원정보변경.... USER생성자를 들고가서 ID/비번이 맞으면 바꿔주고 아니면 에러
 				try {
 					pro.updateUser(new User("id01", "FineChina", "1234", "beanskobe@sayclub.com", "M")); // 존재하는 유저 팔로잉은 못바꿈.
 					pro.updateUser(new User("id999", "Ree", "1234", "beanskobe@gmail.com", "F"));//존재하지않는 >>에러
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 4: // 4. 회원탈퇴. 3번과 비슷하다..... User.Vo의 (id,pass) 생성자를 들고가서 ID/비번이 맞으면 삭제 아니면 에러
 				try {
 					pro.deleteUser(new User("id07", "1234"));//삭제됨
 					pro.deleteUser(new User("id9999", "1234")); // 존재하지않는 유저 에러.
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 			
 			case 5: // 낫띵
@@ -86,14 +102,19 @@ public class App2 {
 				try {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 					pro.addPost(currentUserId, new Post("post22", "대애박", "local:C//휴지통"));
-				} catch (Exception e) {e.printStackTrace();}
+				} 
+				catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 11: // 11(로그인전용). id02로 로그인하기 게시물수정.... userId와 Post.VO를 들고가서 본인의 게시물이 아니면 에러
 				try {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 					pro.updatePost(currentUserId, new Post("post01", "칫칭칫칭칭칭치리리링", "local:C//스웨기통"));
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 12: // 12(로그인전용)id02기준 게시물지우기. 4번과 비슷하다..... postId의 게시물이 currentUserId를 가지고 있으면 삭제. 아니면 패스.
@@ -101,42 +122,54 @@ public class App2 {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 //					pro.deletePost(currentUserId, new Post("post16")); // 다른게정포스트
 					pro.deletePost(currentUserId, new Post("post10"));//삭제됨
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 			
 			case 13: // 13(로그인전용) 좋아요누르면 로그인된 아이디로 like가 추가된다.
 				try {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 					pro.likePost(currentUserId,"post05");
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 				
 			case 15: // 15 해당 해쉬태그를 가지고 있는 게시물들을 찾아서 가지고온다.
 				try {
 					Iterator<Post> posts = pro.getPostsByHashTag(new Hashtag("algorithm")).iterator();
 					while (posts.hasNext()) System.out.println((Post) posts.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 			
 			case 16: // 16 해당 userName를 클릭하면 해당 유저의 모든 게시물들을 반환한다.
 				try {
 					Iterator<Post> posts = pro.getAllPostsOfPerson("id01").iterator();
 					while (posts.hasNext()) System.out.println((Post) posts.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 17: // 17 해당 게시물의 해시태그 목록
 				try {
 					Iterator<Hashtag> hashtags = pro.getHashtagsOnPost("post02").iterator();
 					while (hashtags.hasNext()) System.out.println((Hashtag) hashtags.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 				
 			case 19: // 19(로그인전용) 댓글달기
 				try {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 					pro.addComment(currentUserId, "post20","주혁아 넌 진짜 멋지다.");
-				} catch (Exception e) {e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 			
 			case 20: // 20(로그인전용). 댓글수정... id05로 로그인하기 
@@ -144,7 +177,9 @@ public class App2 {
 				try {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 					pro.updateComment(currentUserId, 29 ,"post20", "만세.....");
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 			
 			case 21: // 21(로그인전용) id05로 로그인하기 
@@ -153,21 +188,27 @@ public class App2 {
 				try {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 					pro.deleteComment(currentUserId, "post20", 27);
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 			
 			case 22: // 게시물의 모든 댓글 조회. // 댓글삭제기능은 로그인 상태서만 나타남.
 				try {
 					Iterator<Comment> comments = pro.getCommentsOnPost("post20").iterator();
 					while (comments.hasNext()) System.out.println((Comment) comments.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 				
 			case 222: //댓글좋아요 누르기.. 뭐없음.
 				try {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 					pro.likeComment(currentUserId, 27);
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 				
 			case 23: //(로그인필요) 나의 모든 댓글조회// id05로 로그인할것... 로그인된 유저의 활동기록을 나타내는것....
@@ -175,14 +216,18 @@ public class App2 {
 					if (currentUserId=="") {System.out.println("로그인을 먼저해주세유");break;}
 					Iterator<Comment> comments = pro.getAllCommentsOfPerson(currentUserId).iterator();
 					while (comments.hasNext()) System.out.println((Comment) comments.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 				
 			case 24: //게시물id를 들고가서 태그된 유저들을 검색
 				try {
 					Iterator<User> personTags = pro.getPersontagsOnPost("post05").iterator();
 					while (personTags.hasNext()) System.out.println((User) personTags.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 				
 			case 25: //클릭한 유저 상세 페이지로 이동..... 유저정보와+유저의 포스트 가지고와야함...
@@ -192,7 +237,9 @@ public class App2 {
 					System.out.println(pro.getUser(userOnClick));
 					Iterator<Post> posts = pro.getAllPostsOfPerson(userOnClick).iterator();
 					while (posts.hasNext()) System.out.println((Post) posts.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 			
 			case 26: //(로그인필요) 25와 동일하지만 이번에는 로그인된 사람의 상세 페이지로 이동..... 
@@ -203,21 +250,27 @@ public class App2 {
 					System.out.println(pro.getUser(currentUserId));
 					Iterator<Post> posts = pro.getAllPostsOfPerson(currentUserId).iterator();
 					while (posts.hasNext()) System.out.println((Post) posts.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;		
 			
 			case 29:
 				try {
 					Iterator<User> personTags = pro.getFollowerUsers("id01").iterator();
 					while (personTags.hasNext()) System.out.println((User) personTags.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;	
 			
 			case 30:
 				try {
 					Iterator<User> personTags = pro.getFollowingUsers("id02").iterator();
 					while (personTags.hasNext()) System.out.println((User) personTags.next());
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;		
 			
 			case 31: // @Ree 또는 #algorithm 
@@ -234,7 +287,9 @@ public class App2 {
 						Iterator<Post> posts = pro.getPostsByHashTag(new Hashtag(keyword.substring(1))).iterator();
 						while (posts.hasNext()) System.out.println((Post) posts.next());} 
 					else break;
-				} catch (Exception e) { e.printStackTrace();}
+				} catch (DuplicateRercordException e) { System.out.println("이미 존재하는 정보 입니다.");}
+				catch (RecordNotFoundException e) { System.out.println("정보를 찾을수 없습니다.");}
+				catch (SQLException e) {System.out.println("서버오류");}
 				break;
 				
 			default:

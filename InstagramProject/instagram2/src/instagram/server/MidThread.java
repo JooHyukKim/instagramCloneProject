@@ -8,9 +8,12 @@ import java.net.Socket;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import instagram.exception.DuplicateRercordException;
+import instagram.exception.RecordNotFoundException;
 import instagram.share.Command;
 import instagram.share.Result;
 import instagram.vo.Comment;
@@ -59,278 +62,313 @@ public class MidThread extends Thread{
 			
 			case Command.AUTHENTICATEUSER:
 				try {
-					boolean authentication = false;
-					System.out.println("MidThread recieved AUTHENTICATEUSER and sedning to DB : "+args[0] + args[1]);
-					authentication = db.authenticateUser(args[0], args[1]);
-					if (authentication == true) {
-						System.out.println("correct ID and Password");
-						r.setStatus(0);
-					} else {
-						System.out.println("Wrong ID and Password");	
-					}
-					
-				}catch(Exception e) {	
-					System.out.println("MidThread AUTH USER error");
-				}
+					db.authenticateUser(args[0], args[1]);
+					r.setStatus(0);}
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.AUTHENTICATEUSER ::: RecordNotFound");
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					r.setStatus(-1); //SQL오류 CLIENT
+					e.printStackTrace();}//SQL오류 SERVER}
 				break;
 				
 			case Command.ADDUSER:
 				try {
-					System.out.println("MidThread recieved ADDUSER and sedning to DB : ");
 					db.addUser(new User(args[0], args[1], args[2], args[3], args[4]));
-					r.setStatus(0);
-				}catch(Exception e) {	
-					r.setStatus(-2);
-				}
+					r.setStatus(0);} //있다 client/server
+				catch(DuplicateRercordException e) {
+					r.setStatus(-3); // 없다 client
+					System.out.println("DB.UPDATEPOST ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			case Command.GETUSERBYEMAIL:
 				try {
-					System.out.println("MidThread recieved GETUSERBYEMAIL");
-					String id = db.getUserByEmail(args[0]);
-					r.add(id);
-					if (id=="") r.setStatus(-2);
-					else r.setStatus(0);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getUserByEmail(args[0]));
+					r.setStatus(0);} //있다 client/server
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETUSERBYEMAIL ::: RecordNotFound");
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					r.setStatus(-1); //SQL오류 CLIENT
+					e.printStackTrace();}//SQL오류 SERVER}
 				break;
 			
 			case Command.GETUSERBYID:
 				try {
-					System.out.println("MidThread recieved GETUSERBYID");
-					String id = db.getUserById(args[0]);
-					r.add(id);
-					if (id=="") r.setStatus(-2);
-					else r.setStatus(0);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getUserById(args[0]));
+					r.setStatus(0);} //있다 client/server}
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETUSERBYID ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 
 			case Command.UPDATEUSER:
 				try {
-					System.out.println("MidThread recieved GETUSERBYID");
-					if (db.updateUser(new User(args[0], args[1], args[2], args[3], args[4]))) r.setStatus(0);
-					else r.setStatus(-2);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					db.updateUser(new User(args[0], args[1], args[2], args[3], args[4])); 
+					r.setStatus(0);}
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // 없다 client
+					System.out.println("DB.GETUSERBYID ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 				
 			case Command.DELETEUSER:
 				try {
-					System.out.println("MidThread recieved DELETEUSER");
-					if (db.deleteUser(args[0],args[1])) r.setStatus(0);
-					else r.setStatus(-2);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					db.deleteUser(args[0],args[1]); 
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // 없다 client
+					System.out.println("DB.GETUSERBYID ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 				
 			case Command.ADDPOST:
 				try {
-					System.out.println("MidThread recieved ADDPOST");
-					if (db.addPost(args[0], new Post(args[1], args[2], args[3]))) r.setStatus(0);
-					else r.setStatus(-2);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					db.addPost(args[0], new Post(args[1], args[2], args[3]));
+					r.setStatus(0);
+				}catch(DuplicateRercordException e) {
+					r.setStatus(-3); // 없다 client
+					System.out.println("DB.UPDATEPOST ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 				
 			case Command.UPDATEPOST:
 				try {
-					System.out.println("MidThread recieved UPDATEUSER");
-					if (db.updatePost(args[0], new Post(args[1], args[2], args[3]))) r.setStatus(0);
-					else r.setStatus(-2);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					db.updatePost(args[0], new Post(args[1], args[2], args[3])); 
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // 없다 client
+					System.out.println("DB.UPDATEPOST ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 				
 			case Command.DELETEPOST:
 				try {
-					System.out.println("MidThread recieved DELETEPOST");
-					if (db.deletePost(args[0], new Post(args[1]))) r.setStatus(0);
-					else r.setStatus(-2);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					db.deletePost(args[0], new Post(args[1]));
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // 없다 client
+					System.out.println("DB.DELETEPOST ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;	
 				
 			case Command.LIKEPOST:
 				try {
-					System.out.println("MidThread recieved LIKEPOST");
-					if (db.likePost(args[0], args[1])) r.setStatus(0);
-					else r.setStatus(-2);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
-				break;	
+					db.likePost(args[0], args[1]);
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // 없다 client
+					System.out.println("DB.LIKEPOST ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
+				break;		
 			
 			case Command.GETPOSTSBYHASHTAG:
 				try {
-					System.out.println("MidThread recieved GETPOSTSBYHASHTAG");
-					posts = db.getPostsByHashTag(new Hashtag(args[0]));
-					if (posts.size()==0) r.setStatus(-2);
-					else {
-						r.add(posts);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getPostsByHashTag(new Hashtag(args[0])));
+					r.setStatus(0);}
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETPOSTSBYHASHTAG ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			case Command.GETALLPOSTSOFPERSON:
 				try {
-					System.out.println("MidThread recieved GETALLPOSTSOFPERSON");
-					posts = db.getAllPostsOfPerson(args[0]);
-					if (posts.size()==0) r.setStatus(-2);
-					else {
-						r.add(posts);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getAllPostsOfPerson(args[0]));
+					r.setStatus(0);}
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETALLPOSTSOFPERSON ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			case Command.GETHASHTAGSONPOST:
 				try {
-					System.out.println("MidThread recieved GETHASHTAGSONPOST");
-					ArrayList<Hashtag> hashtags = db.getHashtagsOnPost(args[0]);
-					if (hashtags.size()==0) r.setStatus(-2);
-					else {
-						r.add(hashtags);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getHashtagsOnPost(args[0]));
+					r.setStatus(0);}
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETHASHTAGSONPOST ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 				
 			case Command.ADDCOMMENT:
 				try {
-					System.out.println("MidThread recieved ADDCOMMENT");
-					if (db.addComment(args[0], args[1], args[2])) r.setStatus(0);
-				}catch(Exception e) {	
-					r.setStatus(-2);
-				}
+					db.addComment(args[0], args[1], args[2]);
+					r.setStatus(0);
+				}catch(DuplicateRercordException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.ADDCOMMENT ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;	
 				
 			case Command.UPDATECOMMENT:
 				try {
-					System.out.println("MidThread recieved UPDATECOMMENT");
-					if (db.updateComment(args[0], Integer.parseInt(args[1]), args[2], args[3])) r.setStatus(0);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					db.updateComment(args[0], Integer.parseInt(args[1]), args[2], args[3]); 
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.UPDATECOMMENT ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;	
 				
 			case Command.DELETECOMMENT:
 				try {
-					System.out.println("MidThread recieved DELETECOMMENT");
-					if (db.deleteComment(args[0], args[1], Integer.parseInt(args[2]))) r.setStatus(0);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					db.deleteComment(args[0], args[1], Integer.parseInt(args[2]));
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.DELETECOMMENT ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;	
 			
 			case Command.GETCOMMENTSONPOST:
 				try {
-					System.out.println("MidThread recieved GETCOMMENTSONPOST");
-					ArrayList<Comment> comments = db.getCommentsOnPost(args[0]);
-					if (comments.size()==0) r.setStatus(-2);
-					else {
-						r.add(comments);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getCommentsOnPost(args[0]));
+					r.setStatus(0);}
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETCOMMENTSONPOST ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			case Command.LIKECOMMENT:
 				try {
-					System.out.println("MidThread recieved LIKECOMMENT");
-					if (db.likeComment(args[0], Integer.parseInt(args[1]))) r.setStatus(0);
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
-				break;	
+					db.likeComment(args[0], Integer.parseInt(args[1])); 
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.LIKECOMMENT ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
+				break;
 				
 			case Command.GETALLCOMMENTSOFPERSON:
 				try {
-					System.out.println("MidThread recieved GETALLCOMMENTSOFPERSON");
-					ArrayList<Comment> comments = db.getAllCommentsOfPerson(args[0]);
-					if (comments.size()==0) r.setStatus(-2);
-					else {
-						r.add(comments);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getAllCommentsOfPerson(args[0]));
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETALLCOMMENTSOFPERSON ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			case Command.GETPERSONTAGSONPOST:
 				try {
-					System.out.println("MidThread recieved GETPERSONTAGSONPOST");
-					ArrayList<User> personTags = db.getPersontagsOnPost(args[0]);
-					if (personTags.size()==0) r.setStatus(-2);
-					else {
-						r.add(personTags);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getPersontagsOnPost(args[0]));
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETPERSONTAGSONPOST ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			case Command.GETUSER:
 				try {
-					System.out.println("MidThread recieved GETUSER");
-					User user = db.getUser(args[0]);
-					if (user==null) r.setStatus(-2);
-					else {
-						r.add(user);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getUser(args[0]));
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETUSER ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			case Command.GETUSERBYUSERNAME:
 				try {
-					System.out.println("MidThread recieved GETUSERBYUSERNAME");
-					User user = db.getUser(new User(args[0]));
-					if (user==null) r.setStatus(-2);
-					else {
-						r.add(user);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getUser(new User(args[0])));
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETUSERBYUSERNAME ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			case Command.GETFOLLOWINGUSERS:
 				try {
-					System.out.println("MidThread recieved GETFOLLOWINGUSER");
-					ArrayList<User> users = db.getFollowingUsers(args[0]);
-					if (users.size()==0) r.setStatus(-2);
-					else {
-						r.add(users);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getFollowingUsers(args[0]));
+					r.setStatus(0);
+				}catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETFOLLOWINGUSERS ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			case Command.GETFOLLOWERUSERS:
 				try {
-					System.out.println("MidThread recieved GETFOLLOWERUSER");
-					ArrayList<User> users = db.getFollowerUsers(args[0]);
-					if (users.size()==0) r.setStatus(-2);
-					else {
-						r.add(users);
-						r.setStatus(0);}
-				}catch(Exception e) {
-					r.setStatus(-2);
-				}
+					r.add(db.getFollowerUsers(args[0]));
+					r.setStatus(0);}
+				catch(RecordNotFoundException e) {
+					r.setStatus(-3); // client
+					System.out.println("DB.GETFOLLOWERUSERS ::: RecordNotFound"); //서버 트래킹용.
+					e.printStackTrace();} //없다 SERVER
+				catch(SQLException e) {
+					e.printStackTrace();//SQL오류 SERVER
+					r.setStatus(-1);} //SQL오류 CLIENT
 				break;
 			
 			
