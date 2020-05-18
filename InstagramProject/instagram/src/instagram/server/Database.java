@@ -19,9 +19,10 @@ import instagram.vo.User;
 public class Database implements DatabaseTemplate{
 	
 	public static int COMMENTIDNUM=6;
+	public static int POSTIDNUM=12;
 
 	public Database(String serverIp) throws ClassNotFoundException{
-		//Class.forName(ServerInfo.DRIVER_NAME);
+		Class.forName(ServerInfo.DRIVE_NAME);
 		System.out.println("드라이버 로딩 성공....");
 	}
 	
@@ -393,23 +394,48 @@ public class Database implements DatabaseTemplate{
 
 
 	@Override
-	public void addPost(String userId, Post post) throws SQLException {
+	public void addPost(String userId, Post post,String loginUserId) throws SQLException {
 		Connection conn = null;
 		PreparedStatement ps = null;
+		PreparedStatement ps1 = null;
+		PreparedStatement ps2 = null;
+		PreparedStatement ps3 = null;
 		
 		try {
 			conn = getConnect();
-			String query =  "insert into post(postId, caption, imageSrc) values(?,?,?,)";
+			conn.setAutoCommit(false); //시작
+			String postId = "post"+ POSTIDNUM;
+			String query =  "insert into post(postId, caption, imageSrc, ) values(?,?,?,)";
 			ps = conn.prepareStatement(query);
-			ps.setString(1, post.getPostId());
+			ps.setString(1, postId);
 			ps.setString(2, post.getCaption());
 			ps.setString(3, post.getImageSrc());
-			
 			ps.executeUpdate();
-			System.out.println("댓글이 달렸습니다.");
 			
+			String query1 =  "insert into persontag(userId, postId,postOwner) values(?, ?,'N')";
+			ps1 = conn.prepareStatement(query1);
+			ps.setString(1, userId);
+			ps.setString(2, postId);
+			ps.executeUpdate();
+			
+			String query3 =  "insert into persontag(userId, postId,postOwner) values(?, ?,'Y')";
+			ps3 = conn.prepareStatement(query3);
+			ps.setString(1, loginUserId);
+			ps.setString(2, postId);
+			ps.executeUpdate();
+			
+			String query2 = "update user set postNum = (select count(userId) from persontag where userId= ? and postOwner= 'Y') where userId=?";
+			ps2 = conn.prepareStatement(query2);
+			ps2.setString(1, loginUserId);
+			ps2.setString(2, loginUserId);
+			ps2.executeUpdate();
+			
+			System.out.println("게시물 업로드");
+			conn.commit();
+
 		} finally {
 			closeAll(ps, conn);
+			conn.setAutoCommit(true);
 		} 
 		
 	}
@@ -456,14 +482,12 @@ public class Database implements DatabaseTemplate{
 			if(isExistUserId(userId, conn)) {
 				
 				String query = "select po.postId, po.caption, po.imageSrc, po.likeNum, po.date, pe.userId "
-						+ "from post po left join persontag pe"
-						+ "on po.postId = pe.postId"
+						+ "from post po left join persontag pe "
+						+ "on po.postId = pe.postId "
 						+ "where pe.userId = ? and pe.postOwner ='Y'";
 				ps = conn.prepareStatement(query);
 				ps.setString(1, userId);
-				
 				rs =ps.executeQuery();
-				System.out.println("====================***************************************"); // 여기가 문제
 				while(rs.next()) {
 					
 					list.add(new Post(rs.getString("po.postId"), rs.getString("po.caption"), rs.getString("po.imageSrc"), rs.getInt("po.likeNum") , rs.getString("po.date"), rs.getString("pe.userId")));
@@ -590,21 +614,20 @@ public class Database implements DatabaseTemplate{
 		try {
 			conn = getConnect();
 			if(isExistHashtagId(hashtagId, conn)) {
-				String query = "select postId, caption, imageSrc likeNum, date from post where postId in (select postId from hashgroup where hashtagId = ?)";
+				String query = "select p.postId, p.caption, p.imageSrc, p.likeNum, p.date, pt.userId from post p left join persontag pt on p.postId = pt.postId where p.postId in (select p3.postId from hashgroup p3 where p3.hashtagId = ?);";
 				ps = conn.prepareStatement(query);
 				ps.setString(1, hashtagId);
-				
 				rs =ps.executeQuery();
 				while(rs.next()) {
-					list.add(new Post(rs.getString("postId"), rs.getString("caption"), rs.getString("imageSrc"), rs.getInt("likeNum"), rs.getString("date")));
+					list.add(new Post(rs.getString("p.postId"), rs.getString("p.caption"), rs.getString("p.imageSrc"), rs.getInt("p.likeNum"),rs.getString("p.date"), rs.getString("pt.userId")));
 				}
 			}else {
 				throw new RecordNotFoundException(hashtagId+"가 존재하지않습니다.");
 			}
-		
 		}finally {
 			closeAll(rs, ps, conn);
 		}
+		System.out.println(list+"데이타베이스-------------------");
 		return list;
 	}
 
@@ -661,6 +684,7 @@ public class Database implements DatabaseTemplate{
 		
 		try {
 			conn = getConnect();
+			conn.setAutoCommit(false); //시작
 			System.out.println(postId);
 			String query1 =  "select likeNum from post where postId=?";
 			ps = conn.prepareStatement(query1);
@@ -677,10 +701,13 @@ public class Database implements DatabaseTemplate{
 			
 			ps2.executeUpdate();
 			
+			conn.commit();
+			
 		}catch(Exception e){
 			
 		}finally {
 			closeAll(rs, ps, conn);
+			conn.setAutoCommit(true);
 		} 
 	}
 	

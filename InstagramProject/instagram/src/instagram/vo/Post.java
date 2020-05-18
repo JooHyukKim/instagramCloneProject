@@ -12,7 +12,12 @@ public class Post implements Serializable{
 	private static int POSTNUM=0;
 	
 	public Post() {}
-
+	
+	public Post(String caption, String imageSrc) {
+		this.caption = caption;
+		this.imageSrc = imageSrc;
+	}
+	
 	public Post(String postId, String caption, String imageSrc, int likeNum) {
 		super();
 		this.postId = postId;

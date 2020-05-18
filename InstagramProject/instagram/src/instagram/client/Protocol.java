@@ -224,10 +224,10 @@ public class Protocol {
 		if(status==-2) throw new Exception("Get all comments ERROR 포스트아이디가 맞지 않습니다.");
 	}
 	
-	public void addPost(String userId, Post post) throws Exception {
+	public void addPost(String userId, Post post, String loginUserId) throws Exception {
 		//도시락싸기
 		cmd = new Command(Command.ADDPOST);
-		String[ ] str = {userId, post.getCaption(), post.getImageSrc()};
+		String[ ] str = {userId, post.getCaption(), post.getImageSrc(), loginUserId};
 		cmd.setArgs(str);
 		//도시락보내기
 		writeCommand(cmd);
@@ -300,16 +300,20 @@ public class Protocol {
 		if(status==-2) throw new Exception("get person tags on post ERROR");
 	}
 	
-	public void getUserByPersonTag(int personTagIdx) throws Exception {
+	public ArrayList<User> getUsersByPersonTag(String postId) throws Exception {
 		//도시락싸기
+		ArrayList<User> list = new  ArrayList<User>();
 		cmd = new Command(Command.GETUSERSBYPERSONTAG);
-		String[ ] str = {String.valueOf(personTagIdx)};
+		String[ ] str = {postId};
 		cmd.setArgs(str);
 		//도시락보내기
 		writeCommand(cmd);
 		//도시락
 		int status=getResponse();
 		if(status==-2) throw new Exception("GetUsersByPersonTag INT ERROR");
+		list = (ArrayList<User>) cmd.getResults().get(0);
+		return list;
+		
 	}
 	
 	public void getHashtagsOnPost(String postId) throws Exception {
@@ -324,8 +328,9 @@ public class Protocol {
 		if(status==-2) throw new Exception("GetHashTagsOn post ERROR");
 	}
 	
-	public void getPostsByHashTag(String hashtagId) throws Exception {
+	public ArrayList<Post> getPostsByHashTag(String hashtagId) throws Exception {
 		//도시락싸기
+		ArrayList<Post> list = new  ArrayList<Post>();
 		cmd = new Command(Command.GETPOSTSBYHASHTAG);
 		String[ ] str = {hashtagId};
 		cmd.setArgs(str);
@@ -333,7 +338,10 @@ public class Protocol {
 		writeCommand(cmd);
 		//도시락
 		int status=getResponse();
-		if(status==-2) throw new Exception("GETPOSTSBYHASHTAG ERROR");
+		if(status == -1) throw new RecordNotFoundException("해당 해쉬태그 게시물이 없어요");
+		list = (ArrayList<Post>) cmd.getResults().get(0);
+		System.out.println(list+"Protocool333333333333333333333333");
+		return list;
 	}
 	
 	public boolean checkUserId(String userId) { // ID 여부만 확인

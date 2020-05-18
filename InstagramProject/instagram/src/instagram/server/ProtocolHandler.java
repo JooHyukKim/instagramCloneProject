@@ -13,6 +13,7 @@ public class ProtocolHandler extends Thread{
 	Database db;
 	
 	public static final int MIDDLE_PORT = 60000;
+	
 	public ProtocolHandler(String DBserverIp) {
 		//생성자에서 만드는 이유는 서버를 선언함과 동시에 
 		try {

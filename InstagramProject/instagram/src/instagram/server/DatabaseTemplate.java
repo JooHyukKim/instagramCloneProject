@@ -32,7 +32,7 @@ public interface DatabaseTemplate {
 	ArrayList<Comment> getCommentsOnPost(String userId,String postId)throws SQLException, RecordNotFoundException; //게시물에 있는 댓글들 조회
 	ArrayList<Comment> getCommentsUserWrite(String userId, String postId) throws SQLException, RecordNotFoundException; //자신이 쓴 모든 댓글들 조회
 	
-	void addPost(String userId, Post post)throws SQLException; //사용자가 게시물 작성
+	void addPost(String userId, Post post, String loginUserId)throws SQLException; //사용자가 게시물 작성
 	Post getPost(String userId, String postId) throws SQLException, RecordNotFoundException; //사용자가 특정 게시물 검색
 	ArrayList<Post> getAllPostsOfPerson(String userId) throws SQLException, RecordNotFoundException;  //사용자가 작성한 게시물들 검색
 	ArrayList<Post> getSomePostsOfFollowingPerson(String userId) throws SQLException, RecordNotFoundException; //사용자가 팔로우하는 사용자들의 게시물 검색(개수 제한)

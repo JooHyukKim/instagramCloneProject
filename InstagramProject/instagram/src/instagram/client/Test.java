@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-import com.mysql.cj.protocol.a.TracingPacketReader;
-
 import instagram.client.Protocol;
 import instagram.config.ServerInfo;
 import instagram.vo.Comment;
@@ -86,7 +84,10 @@ public class Test {
 
 	private static void homeSystem() throws Exception {
 		while(true) {
+		System.out.println("==========팔로우한 사람들 게시물==================");
 		System.out.println(pro.getSomePostsOfFollowingPerson(loginUserId));
+		System.out.println("==========팔로우한 사람들 게시물==================");
+		System.out.println("==========================================");
 		
 		System.out.println("=========== Instagram ===========");
 		System.out.println("+-------------------------------+");
@@ -99,6 +100,7 @@ public class Test {
 		System.out.println("| 7. 홈으로 이동                                    |");
 		System.out.println("| 8. 검색 ( @ / # )               |");
 		System.out.println("| 9. 내 페이지로 이동                              |");
+		System.out.println("| 10. 게시물 추가하기                               |");
 		System.out.println("| 0. 종료                                             |");
 		System.out.println("+-------------------------------+");
 		
@@ -107,12 +109,12 @@ public class Test {
 		System.out.print("입력 : ");
 		chooseNum = sc.nextInt();
 		if(chooseNum != 1 && chooseNum != 2 && chooseNum !=3 && chooseNum != 4 && chooseNum != 5 && chooseNum != 6
-				&& chooseNum != 7 && chooseNum != 8 && chooseNum != 9 && chooseNum != 0) {
+				&& chooseNum != 7 && chooseNum != 8 && chooseNum != 9 && chooseNum != 10 && chooseNum != 0) {
 			System.out.println("=========== Instagram ===========");
 			System.out.println("");
 			System.out.println("============ System Message ============");
 			System.out.println("+---------------------------------------+");
-			System.out.println("| 1~9 사이로 다시 입력해주시길 바랍니다.          |");
+			System.out.println("| 1~~ 사이로 다시 입력해주시길 바랍니다.          |");
 			System.out.println("+---------------------------------------+");
 		}else break;
 		}
@@ -139,7 +141,7 @@ public class Test {
 			System.out.print("입력 : ");
 			String comment = sc.next();
 			pro.addComment(loginUserId, postId1, comment);
-			
+			System.out.println();
 			System.out.println("댓글이 추가되었습니다.");
 			break;
 			
@@ -149,21 +151,31 @@ public class Test {
 			System.out.println("+--------------------------------+");
 			System.out.print("입력 : ");				
 			String userId = sc.next();
-			pro.getAllPostsOfPerson(userId);
+			System.out.println("=========="+userId+"님의 게시물 ==================");
+			System.out.println(pro.getAllPostsOfPerson(userId));
+			System.out.println("************************************************");
+			
 			break;
 		case 4:
 			System.out.println("+---------------------------------+");
 			System.out.println("| 클릭한 해쉬태그를 입력해주세요. (String)|");
 			System.out.println("+---------------------------------+");
 			System.out.print("입력 : ");			
-			//System.out.println(pro.getPostsByHashTag(sc.nextLine()));
+			String hashtagId = sc.next();
+			System.out.println("=========="+hashtagId+"의 게시물 ==================");
+			System.out.println(pro.getPostsByHashTag(hashtagId));
+			System.out.println("************************************************");
 			break;
 		case 5:
 			System.out.println("+--------------------------------+");
-			System.out.println("| 클릭하신 PeopleTag의 포스트 ID를 입력   |");
+			System.out.println("|       postId 를 입력해주세요           |");
 			System.out.println("+--------------------------------+");
-			System.out.print("입력 : ");				
-			//System.out.println(pro.getPersontagsOnPost(sc.nextLine()));
+			System.out.print("입력 : ");		
+			String postId2 = sc.next();
+			System.out.println("=========="+postId2+"에 태그된 사람들==================");
+			System.out.println(pro.getUsersByPersonTag(postId2));
+			System.out.println("************************************************");
+			
 			break;
 		case 6:
 			System.out.println("+--------------------------------+");
@@ -190,6 +202,28 @@ public class Test {
 			System.out.println("| 내 프로필 클릭.유저본인 상세페이지로 이동합니다.|");
 			System.out.println("+------------------------------------+");
 			System.out.println();
+			break;
+		case 10:
+			System.out.println("+------------------------------------+");
+			System.out.println("| 게시물 추가합니다. 내용을 입력해주세여			|");
+			System.out.println("+------------------------------------+");
+			System.out.println("입력:");
+			String caption = sc.next();
+			
+			System.out.println("+------------------------------------+");
+			System.out.println("| 사진을 넣어주세요    						|");
+			System.out.println("+------------------------------------+");
+			System.out.println("입력:");
+			String imageSrc = sc.next();
+			
+			System.out.println("+------------------------------------+");
+			System.out.println("| 태그할 사람의 ID를 넣어주세요      			|");
+			System.out.println("+------------------------------------+");
+			System.out.println("입력:");
+			String userId1 = sc.next();
+			
+			pro.addPost(userId1, new Post(caption, imageSrc), loginUserId);
+			
 			break;
 		case 0:
 			mode = EXIT_MODE;

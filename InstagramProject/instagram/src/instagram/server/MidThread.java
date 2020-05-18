@@ -96,7 +96,10 @@ public class MidThread extends Thread{
 				break;
 			case Command.GETUSERSBYPERSONTAG:
 				try{
-					
+					String postId = args[0];
+					ArrayList<User> list = db.getUsersByPersonTag(postId);
+					r.setStatus(0);
+					r.add(list);
 				}catch(Exception e) {
 					
 				}
@@ -124,7 +127,12 @@ public class MidThread extends Thread{
 				break;
 			case Command.ADDPOST:
 				try{
-					
+					String userId = args[0];
+					String caption = args[1];
+					String imageSrc = args[2];
+					String loginUserId = args[3];
+					db.addPost(userId, new Post(caption, imageSrc),loginUserId);
+					r.setStatus(0);
 				}catch(Exception e) {
 					
 				}
@@ -171,7 +179,11 @@ public class MidThread extends Thread{
 				break;
 			case Command.GETPOSTSBYHASHTAG:
 				try{
-					
+					String hashtagId = args[0];
+					ArrayList<Post> list = db.getPostsByHashTag(hashtagId);
+					r.setStatus(0);
+					r.add(list);
+					System.out.println(list+ "MidThread 2222222222222222222222222");
 				}catch(Exception e) {
 					
 				}
