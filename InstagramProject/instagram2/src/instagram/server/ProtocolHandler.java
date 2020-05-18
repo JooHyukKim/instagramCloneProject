@@ -37,7 +37,7 @@ public class ProtocolHandler extends Thread{
 		}
 	}
 	public static void main(String[] args) {
-		ProtocolHandler handler = new ProtocolHandler("0.0.0.0");//db서버 IP를 넣는다.서버 소켓과 비즈니스객체 생성. 
+		ProtocolHandler handler = new ProtocolHandler("127.0.0.1");//db서버 IP를 넣는다.서버 소켓과 비즈니스객체 생성. 
 		handler.start();  //핸들러 자체가 thread...
 	}
 }
