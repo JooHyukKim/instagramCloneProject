@@ -12,7 +12,7 @@
 ### 데이터 핸들링을 계획하는 과정해서 도출해낸 SQL 
 ![sql](./InstagramProject/instagram/src/doc/SQL_query_plan.png)
 
-### 이 프로젝트에서는 스프링부트를 사용하지 않고 POJO로 구성하였고 instagram.client 패키지의 클라이언트에서 웹소켓으로 연결을 받아 MySQL에 접근하여 데이터를 핸들링하게 했다.
+### 이 프로젝트에서는 프레임워크를 사용하지 않고 POJO로 구성하였고 instagram.client 패키지의 클라이언트에서 웹소켓으로 연결을 받아 MySQL에 접근하여 데이터를 핸들링하게 했다.
 
 ![server](./InstagramProject/instagram/src/doc/websocket.png)
 
